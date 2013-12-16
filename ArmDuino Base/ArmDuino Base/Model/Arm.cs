@@ -101,7 +101,7 @@ namespace ArmDuino_Base.Model
                 NotifyPropertyChanged("Pinza");
             }
         }
-        public static int[] CurrentAngles;
+        public int[] CurrentAngles;
 
         public Arm()
         {
@@ -131,6 +131,17 @@ namespace ArmDuino_Base.Model
             CurrentAngles[4] = Vertical2Ang;
             CurrentAngles[5] = Horizontal3Ang;
             CurrentAngles[6] = Pinza;
+        }
+
+        public void setAngles()
+        {
+            BaseAng = CurrentAngles[0];
+            Horizontal1Ang = CurrentAngles[1];
+            Vertical1Ang = CurrentAngles[2];
+            Horizontal2Ang = CurrentAngles[3];
+            Vertical2Ang = CurrentAngles[4];
+            Horizontal3Ang = CurrentAngles[5];
+            Pinza = CurrentAngles[6];
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

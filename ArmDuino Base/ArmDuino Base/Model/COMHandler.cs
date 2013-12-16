@@ -12,9 +12,11 @@ namespace ArmDuino_Base.Model
     {
         public static SerialPort Port;
         public bool isConnected = false;
+        public Arm currentArm;
 
-        public COMHandler()
+        public COMHandler(Arm currentArm)
         {
+            this.currentArm = currentArm;
             string[] portnames = SerialPort.GetPortNames();
             
 
@@ -55,39 +57,22 @@ namespace ArmDuino_Base.Model
 
         }
 
-        public String dataStringFormatter()
-        {
-            int[] buffer = Arm.CurrentAngles;
-            String result = "";
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                if (buffer[i] < 10)
-                {
-                    result += "00" + buffer[i];
-                }
-                else if (buffer[i] < 100)
-                {
-                    result += "0" + buffer[i];
-                }
-                else result += buffer[i];
-            }
-            return result;
-        }
+
 
         public String dataToString()
         {
             String result = "";
-            for (int i = 0; i < Arm.CurrentAngles.Length; i++)
+            for (int i = 0; i < currentArm.CurrentAngles.Length; i++)
             {
-                if (Arm.CurrentAngles[i] < 10)
+                if (currentArm.CurrentAngles[i] < 10)
                 {
-                    result += "00" + Arm.CurrentAngles[i];
+                    result += "00" + currentArm.CurrentAngles[i];
                 }
-                else if (Arm.CurrentAngles[i] < 100)
+                else if (currentArm.CurrentAngles[i] < 100)
                 {
-                    result += "0" + Arm.CurrentAngles[i];
+                    result += "0" + currentArm.CurrentAngles[i];
                 }
-                else result += Arm.CurrentAngles[i];
+                else result += currentArm.CurrentAngles[i];
             }
             return result;
         }

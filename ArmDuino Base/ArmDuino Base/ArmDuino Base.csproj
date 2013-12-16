@@ -36,6 +36,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Speech" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -55,6 +56,8 @@
     </ApplicationDefinition>
     <Compile Include="Converters\SliderMapper.cs" />
     <Compile Include="Model\Arm.cs" />
+    <Compile Include="Model\ArmCommand.cs" />
+    <Compile Include="Model\ArmCommander.cs" />
     <Compile Include="Model\COMHandler.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">

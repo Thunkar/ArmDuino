@@ -1,3 +1,4 @@
+#include <BbBProtocol.h>
 #include <Servo.h>
 
 Servo base;
@@ -16,6 +17,7 @@ long lastSteps[7];
 long movementPeriod = 500000;
 int data[7];
 char dataBytes[21];
+BbBProtocol protocol(21, 3, 115200);
 
 #define DEBUG
 
@@ -117,50 +119,38 @@ boolean initialize(char initBytes[]){
 
 
 void setup(){
+  protocol.begin();
   pinMode(13, OUTPUT);
+  digitalWrite(13, HIGH);
   pinza.attach(8);
   pinza.write(170);
-  delay(500);
-  base.attach(2);
-  delay(500);
-  vertical1.attach(4);
-  delay(500);
-  vertical2.attach(6);
-  delay(500);
-  horizontal1.attach(3);
-  delay(500);
-  horizontal2.attach(5);
-  delay(500);
+  delay(1000);
   horizontal3.attach(7);
-  Serial.begin(115200);
+  delay(1000);
+  horizontal2.attach(5);
+  delay(1000);
+  horizontal1.attach(3);
+  delay(1000);
+  vertical1.attach(4);
+  delay(1000);
+  vertical2.attach(6);
+  delay(1000);
+  base.attach(2);
   char initBytes[4];
-  digitalWrite(13, HIGH);
   while(!initialize(initBytes)){
     if(Serial.available()>3){
       Serial.readBytes(initBytes, 4);
     }
   Serial.flush();
   }
- Serial.println("Connected");
- delay(1000);
  digitalWrite(13, LOW);
+ Serial.println("Connected");
 }
 
 
 
 void loop() {
-  if(Serial.available()>20){
-    byte nbytes = Serial.readBytes(dataBytes,21);
-    dataBytesFormatter(dataBytes);
-    #ifdef DEBUG
-    Serial.print(nbytes);
-    Serial.println(" bytes read");
-    for(int i = 0; i < 7; i++){
-      Serial.println(data[i]);
-    }
-    #endif
-    Serial.flush();
-  }
+  protocol.read(&data);
   if(!sameTargets(data))
   {
       setTargets(data);
