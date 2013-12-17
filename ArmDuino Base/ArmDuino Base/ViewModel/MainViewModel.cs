@@ -15,6 +15,7 @@ namespace ArmDuino_Base.ViewModel
         public static Arm Arm { get; set; }
         public ArmCommand Picker { get; set; }
         public ArmCommand Rect { get; set; }
+        public ArmCommand Salute { get; set; }
         public MainViewModel()
         {
             Current = this;
@@ -36,6 +37,14 @@ namespace ArmDuino_Base.ViewModel
             //Rect
             Rect = new ArmCommand();
             Rect.MovementQueue.Enqueue(new int[] { 90, 90, 90, 90, 90, 90, 170 });
+            //Salute
+            Salute = new ArmCommand();
+            Salute.MovementQueue.Enqueue(new int[] { 90, 130, 90, 30, 90, 30, 170 });
+            Salute.MovementQueue.Enqueue(new int[] { 90, 130, 50, 30, 90, 30, 50 });
+            Salute.MovementQueue.Enqueue(new int[] { 90, 130, 130, 30, 90, 30, 170 });
+            Salute.MovementQueue.Enqueue(new int[] { 90, 130, 50, 30, 90, 30, 50 });
+            Salute.MovementQueue.Enqueue(new int[] { 90, 130, 130, 30, 90, 30, 170 });
+            Salute.MovementQueue.Enqueue(new int[] { 90, 90, 90, 90, 90, 90, 170 });
         }
     }
 }

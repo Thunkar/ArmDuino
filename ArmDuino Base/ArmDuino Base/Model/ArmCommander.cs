@@ -31,7 +31,7 @@ namespace ArmDuino_Base.Model
         {
             if (currentCommand.MovementQueue.Count != 0)
             {
-                currentArm.CurrentAngles = currentCommand.MovementQueue.Dequeue();
+                Array.Copy(currentCommand.MovementQueue.Dequeue(), currentArm.CurrentAngles, 7);
                 currentArm.setAngles();
             }
 

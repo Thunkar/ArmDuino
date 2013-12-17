@@ -17,8 +17,14 @@ namespace ArmDuino_Base.Model
         public COMHandler(Arm currentArm)
         {
             this.currentArm = currentArm;
+
+
+        }
+
+        public void initializer()
+        {
             string[] portnames = SerialPort.GetPortNames();
-            
+
 
             while (portnames.Length == 0)
             {
@@ -35,9 +41,10 @@ namespace ArmDuino_Base.Model
             }
 
             Port = new SerialPort(portnames[0], 115200);
-            while(!Port.IsOpen)
+            while (!Port.IsOpen)
             {
-                try {
+                try
+                {
                     Port.Open();
                 }
                 catch (Exception)
@@ -54,7 +61,6 @@ namespace ArmDuino_Base.Model
                     }
                 }
             }
-
         }
 
 
@@ -90,8 +96,16 @@ namespace ArmDuino_Base.Model
 
         public void writeDataBytes()
         {
-            byte[] buffer = dataToBytes();
-            Port.Write(buffer, 0, buffer.Length);
+            try
+            {
+                byte[] buffer = dataToBytes();
+                Port.Write(buffer, 0, buffer.Length);
+            }
+            catch(Exception)
+            {
+                Application.Current.Shutdown();
+                throw new Exception("PUM");
+            }
         }
 
         public void writeDataString()

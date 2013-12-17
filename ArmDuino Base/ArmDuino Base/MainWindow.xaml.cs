@@ -25,7 +25,6 @@ namespace ArmDuino_Base
     {
 
         public static DispatcherTimer Timer = new DispatcherTimer();
-        public static DispatcherTimer SpeechTimer = new DispatcherTimer();
         public char[] buffer = new char[7];
         SpeechRecognitionEngine recognizer = new SpeechRecognitionEngine();
         SpeechSynthesizer synth = new SpeechSynthesizer();
@@ -35,10 +34,8 @@ namespace ArmDuino_Base
         public MainWindow()
         {
             InitializeComponent();
-            SpeechTimer.Interval = new TimeSpan(0, 0, 0, 3);
             Timer.Interval = new TimeSpan(0, 0, 0, 0, 100);
             Timer.Tick += Timer_Tick;
-            SpeechTimer.Tick += SpeechTimer_Tick;
             COMHandler.Port.DataReceived += Port_DataReceived;
             synth.SetOutputToDefaultAudioDevice();
             Grammar activate = new Grammar(new GrammarBuilder("Ok robot, activa el control por voz"));
@@ -49,10 +46,13 @@ namespace ArmDuino_Base
             rect.Name = "rect";
             Grammar recoge = new Grammar(new GrammarBuilder("Recoge"));
             rect.Name = "recoge";
+            Grammar salute = new Grammar(new GrammarBuilder("Saluda"));
+            salute.Name = "saluda";
             recognizer.LoadGrammar(recoge);
             recognizer.LoadGrammar(activate);
             recognizer.LoadGrammar(deactivate);
             recognizer.LoadGrammar(rect);
+            recognizer.LoadGrammar(salute);
             recognizer.RequestRecognizerUpdate();
             recognizer.SpeechRecognized += _recognizer_SpeechRecognized; 
             recognizer.SetInputToDefaultAudioDevice(); // set the input of the speech recognizer to the default audio device
@@ -97,12 +97,18 @@ namespace ArmDuino_Base
                         ArmCommander.loadAndStart(MainViewModel.Current.Picker);
                         break;
                     }
+                case "Saluda":
+                    {
+                        synth.SpeakAsync("Hola");
+                        ArmCommander.loadAndStart(MainViewModel.Current.Salute);
+                        break;
+                    }
             }
         }
 
         void Timer_Tick(object sender, EventArgs e)
         {
-            MainViewModel.Arm.updateAngles();
+            MainViewModel.Arm.updateAngles()
             MainViewModel.Current.COMHandler.writeDataBytes();
         }
 
@@ -121,7 +127,5 @@ namespace ArmDuino_Base
             COMHandler.Port.Write(init, 0, 4);
             Timer.Start();
         }
-
-
     }
 }
