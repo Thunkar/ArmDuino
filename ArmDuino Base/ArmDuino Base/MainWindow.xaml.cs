@@ -26,7 +26,7 @@ namespace ArmDuino_Base
 
         public static DispatcherTimer Timer = new DispatcherTimer();
         public char[] buffer = new char[7];
-        SpeechRecognitionEngine recognizer = new SpeechRecognitionEngine();
+        CommandRecognizer recognizer = new CommandRecognizer();
         SpeechSynthesizer synth = new SpeechSynthesizer();
         bool voiceControlActivated = false;
         ArmCommander ArmCommander;
@@ -36,43 +36,38 @@ namespace ArmDuino_Base
             InitializeComponent();
             Timer.Interval = new TimeSpan(0, 0, 0, 0, 100);
             Timer.Tick += Timer_Tick;
+            MainViewModel.Current.COMHandler.Initialize();
             COMHandler.Port.DataReceived += Port_DataReceived;
             synth.SetOutputToDefaultAudioDevice();
-            Grammar activate = new Grammar(new GrammarBuilder("Ok robot, activa el control por voz"));
+            Grammar activate = new Grammar(new GrammarBuilder("Estormaguedon, activa el control por voz"));
             activate.Name = "activate";
-            Grammar deactivate = new Grammar(new GrammarBuilder("Ok robot, desactiva el control por voz"));
+            Grammar deactivate = new Grammar(new GrammarBuilder("Estormaguedon, desactiva el control por voz"));
             deactivate.Name = "deactivate";
-            Grammar rect = new Grammar(new GrammarBuilder("Ponte recto"));
-            rect.Name = "rect";
-            Grammar recoge = new Grammar(new GrammarBuilder("Recoge"));
-            rect.Name = "recoge";
-            Grammar salute = new Grammar(new GrammarBuilder("Saluda"));
-            salute.Name = "saluda";
-            recognizer.LoadGrammar(recoge);
             recognizer.LoadGrammar(activate);
             recognizer.LoadGrammar(deactivate);
-            recognizer.LoadGrammar(rect);
-            recognizer.LoadGrammar(salute);
+            recognizer.loadCommand("Estormaguedon, saluda", MainViewModel.Current.Salute);
+            recognizer.loadCommand("Estormaguedon, recoge", MainViewModel.Current.Picker);
+            recognizer.loadCommand("Estormaguedon, ponte recto", MainViewModel.Current.Rect);
+            recognizer.loadCommand("Estormaguedon, hazme una paja", MainViewModel.Current.Paja);
+            recognizer.loadCommand("Estormaguedon, felicita las navidades", MainViewModel.Current.Navidades);
+            recognizer.loadCommand("Estormaguedon, para la música", MainViewModel.Current.ParalaMusica);
             recognizer.RequestRecognizerUpdate();
-            recognizer.SpeechRecognized += _recognizer_SpeechRecognized; 
-            recognizer.SetInputToDefaultAudioDevice(); // set the input of the speech recognizer to the default audio device
-            recognizer.RecognizeAsync(RecognizeMode.Multiple); // recognize speech asynchronous
+            recognizer.SpeechRecognized += _recognizer_SpeechRecognized;
+            recognizer.SetInputToDefaultAudioDevice();
+            recognizer.RecognizeAsync(RecognizeMode.Multiple);
         }
 
-        void SpeechTimer_Tick(object sender, EventArgs e)
-        {
-            
-        }
+
 
         void _recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
-            if (e.Result.Text == "Ok robot, activa el control por voz" && e.Result.Confidence >= 0.7) // e.Result.Text contains the recognized text
+            if (e.Result.Text == "Estormaguedon, activa el control por voz")
             {
                 synth.SpeakAsync("Control por voz activado");
                 voiceControlActivated = true;
                 ArmCommander = new ArmCommander(MainViewModel.Arm);
             }
-            if (e.Result.Text == "Ok robot, desactiva el control por voz" && e.Result.Confidence >= 0.7)
+            if (e.Result.Text == "Estormaguedon, desactiva el control por voz")
             {
                 synth.SpeakAsync("Control por voz desactivado");
                 voiceControlActivated = false;
@@ -83,32 +78,19 @@ namespace ArmDuino_Base
 
         public void voiceControlHandler(String command)
         {
-            switch (command)
+            SpokenCommand result;
+            String response;
+            if (recognizer.Commands.TryGetValue(command, out  result))
             {
-                case "Ponte recto":
-                    {
-                        synth.SpeakAsync("Ejecutando comando");
-                        ArmCommander.loadAndStart(MainViewModel.Current.Rect);
-                        break;
-                    }
-                case "Recoge":
-                    {
-                        synth.SpeakAsync("Ejecutando comando");
-                        ArmCommander.loadAndStart(MainViewModel.Current.Picker);
-                        break;
-                    }
-                case "Saluda":
-                    {
-                        synth.SpeakAsync("Hola");
-                        ArmCommander.loadAndStart(MainViewModel.Current.Salute);
-                        break;
-                    }
+                ArmCommander.loadAndStart(result);
+                result.executeFurtherActions(out response);
+                if (response != null) synth.SpeakAsync(response);
             }
         }
 
         void Timer_Tick(object sender, EventArgs e)
         {
-            MainViewModel.Arm.updateAngles()
+            MainViewModel.Arm.updateAngles();
             MainViewModel.Current.COMHandler.writeDataBytes();
         }
 

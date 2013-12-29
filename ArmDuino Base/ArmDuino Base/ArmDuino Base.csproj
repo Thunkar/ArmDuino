@@ -59,6 +59,8 @@
     <Compile Include="Model\ArmCommand.cs" />
     <Compile Include="Model\ArmCommander.cs" />
     <Compile Include="Model\COMHandler.cs" />
+    <Compile Include="Model\CommandRecognizer.cs" />
+    <Compile Include="Model\SpokenCommand.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -100,7 +102,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Assets\jingle.wav" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

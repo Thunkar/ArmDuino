@@ -17,14 +17,11 @@ namespace ArmDuino_Base.Model
         public COMHandler(Arm currentArm)
         {
             this.currentArm = currentArm;
-
-
         }
 
-        public void initializer()
+        public void Initialize()
         {
             string[] portnames = SerialPort.GetPortNames();
-
 
             while (portnames.Length == 0)
             {
