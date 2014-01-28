@@ -19,6 +19,7 @@ namespace ArmDuino_Base.ViewModel
         public SpokenCommand Paja { get; set; }
         public SpokenCommand Navidades { get; set; }
         public SpokenCommand ParalaMusica { get; set; }
+        public SpokenCommand Cumpleaños { get; set; }
         public MainViewModel()
         {
             Current = this;
@@ -77,6 +78,13 @@ namespace ArmDuino_Base.ViewModel
             //Para la música
             ParalaMusica = new SpokenCommand("Jo, vale");
             ParalaMusica.MovementQueue.Enqueue(new int[] { 90, 70, 90, 30, 90, 20, 110});
+            //Felicitar cumpleaños
+            Cumpleaños = new SpokenCommand("¡Felicidades!", "HappyBirthdayGladOS");
+            for (int i = 0; i < 20; i++)
+            {
+                Cumpleaños.MovementQueue.Enqueue(new int[] { 110, 70, 70, 120, 110, 70, 170 });
+                Cumpleaños.MovementQueue.Enqueue(new int[] { 70, 120, 110, 70, 70, 120, 70});
+            }
         }
     }
 }

@@ -39,18 +39,19 @@ namespace ArmDuino_Base
             MainViewModel.Current.COMHandler.Initialize();
             COMHandler.Port.DataReceived += Port_DataReceived;
             synth.SetOutputToDefaultAudioDevice();
-            Grammar activate = new Grammar(new GrammarBuilder("Estormaguedon, activa el control por voz"));
+            Grammar activate = new Grammar(new GrammarBuilder("Ok robot, activa el control por voz"));
             activate.Name = "activate";
-            Grammar deactivate = new Grammar(new GrammarBuilder("Estormaguedon, desactiva el control por voz"));
+            Grammar deactivate = new Grammar(new GrammarBuilder("Ok robot, desactiva el control por voz"));
             deactivate.Name = "deactivate";
             recognizer.LoadGrammar(activate);
             recognizer.LoadGrammar(deactivate);
-            recognizer.loadCommand("Estormaguedon, saluda", MainViewModel.Current.Salute);
-            recognizer.loadCommand("Estormaguedon, recoge", MainViewModel.Current.Picker);
-            recognizer.loadCommand("Estormaguedon, ponte recto", MainViewModel.Current.Rect);
-            recognizer.loadCommand("Estormaguedon, hazme una paja", MainViewModel.Current.Paja);
-            recognizer.loadCommand("Estormaguedon, felicita las navidades", MainViewModel.Current.Navidades);
-            recognizer.loadCommand("Estormaguedon, para la música", MainViewModel.Current.ParalaMusica);
+            recognizer.loadCommand("Ok robot, saluda", MainViewModel.Current.Salute);
+            recognizer.loadCommand("Ok robot, recoge", MainViewModel.Current.Picker);
+            recognizer.loadCommand("Ok robot, ponte recto", MainViewModel.Current.Rect);
+            recognizer.loadCommand("Ok robot, hazme una paja", MainViewModel.Current.Paja);
+            recognizer.loadCommand("Ok robot, felicita las navidades", MainViewModel.Current.Navidades);
+            recognizer.loadCommand("Ok robot, para la música", MainViewModel.Current.ParalaMusica);
+            recognizer.loadCommand("Ok robot, felicítame por mi cumple", MainViewModel.Current.Cumpleaños);
             recognizer.RequestRecognizerUpdate();
             recognizer.SpeechRecognized += _recognizer_SpeechRecognized;
             recognizer.SetInputToDefaultAudioDevice();
@@ -61,13 +62,13 @@ namespace ArmDuino_Base
 
         void _recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
-            if (e.Result.Text == "Estormaguedon, activa el control por voz")
+            if (e.Result.Text == "Ok robot, activa el control por voz")
             {
                 synth.SpeakAsync("Control por voz activado");
                 voiceControlActivated = true;
                 ArmCommander = new ArmCommander(MainViewModel.Arm);
             }
-            if (e.Result.Text == "Estormaguedon, desactiva el control por voz")
+            if (e.Result.Text == "Ok robot, desactiva el control por voz")
             {
                 synth.SpeakAsync("Control por voz desactivado");
                 voiceControlActivated = false;
