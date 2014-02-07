@@ -13,24 +13,43 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="640"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="140"/>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="480"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Slider x:Name="BaseSlider" Maximum="180" Value="{Binding Arm.BaseAng, Mode=TwoWay}"  Width="500" VerticalAlignment="Center" Orientation="Horizontal" Grid.ColumnSpan="3" HorizontalAlignment="Center" Grid.Row="3"/>
-        <TextBlock Text="Base" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="30" FontSize="32" Foreground="White" Grid.Column="1" />
-        <Slider x:Name="Horizontal1Slider" Maximum="180" Value="{Binding Arm.Horizontal1Ang, Mode=TwoWay}"  Width="300" VerticalAlignment="Bottom" Orientation="Horizontal"  HorizontalAlignment="Center" Grid.Row="1"/>
+        <Slider x:Name="BaseSlider" Maximum="180" Value="{Binding Arm.BaseAng, Mode=TwoWay}"  Width="500" VerticalAlignment="Bottom" Margin="20" Orientation="Horizontal" Grid.ColumnSpan="3" HorizontalAlignment="Center" Grid.Row="3"/>
+        <TextBlock Text="Base" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10" FontSize="32" Foreground="White" Grid.Column="1" />
+        <Slider x:Name="Horizontal1Slider" Maximum="180" Value="{Binding Arm.Horizontal1Ang, Mode=TwoWay}"  Height="300" VerticalAlignment="Bottom" Orientation="Vertical"  HorizontalAlignment="Center" Grid.Row="1"/>
         <Slider x:Name="Vertical1Slider" Maximum="180" Value="{Binding Arm.Vertical1Ang, Mode=TwoWay}"  HorizontalAlignment="Left" Height="300" VerticalAlignment="Bottom" Orientation="Vertical" Grid.Row="1" Margin="30,0,0,0"/>
-        <TextBlock Text="First Segment" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="30" FontSize="32" Foreground="White" Grid.Column="0" />
-        <Slider x:Name="Horizontal2Slider" Maximum="180" Value="{Binding Arm.Horizontal2Ang, Mode=TwoWay}"  Width="300" VerticalAlignment="Bottom" Orientation="Horizontal"  HorizontalAlignment="Center" Grid.Row="1" Grid.Column="1"/>
+        <TextBlock Text="First Segment" TextWrapping="Wrap" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="30" FontSize="32" Foreground="White" Grid.Column="0" />
+        <Slider x:Name="Horizontal2Slider" Maximum="180" Value="{Binding Arm.Horizontal2Ang, Mode=TwoWay}"  Height="300" VerticalAlignment="Bottom" Orientation="Vertical"  HorizontalAlignment="Center" Grid.Row="1" Grid.Column="1"/>
         <Slider x:Name="Vertical2Slider" Maximum="180" Value="{Binding Arm.Vertical2Ang, Mode=TwoWay}"  HorizontalAlignment="Left" Height="300" VerticalAlignment="Bottom" Orientation="Vertical" Grid.Row="1" Margin="30,0,0,0" Grid.Column="1"/>
-        <TextBlock Text="Second Segment" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="30" FontSize="32" Foreground="White" Grid.Column="1" />
-        <Slider x:Name="Horizontal3Slider" Maximum="180" Value="{Binding Arm.Horizontal3Ang, Mode=TwoWay}"  Width="300" VerticalAlignment="Bottom" Orientation="Horizontal"  HorizontalAlignment="Center" Grid.Row="1" Grid.Column="2"/>
+        <TextBlock Text="Second Segment" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Margin="30" FontSize="32" Foreground="White" Grid.Column="1" />
+        <Slider x:Name="Horizontal3Slider" Maximum="180" Value="{Binding Arm.Horizontal3Ang, Mode=TwoWay}"  Height="300" VerticalAlignment="Bottom" Orientation="Vertical"  HorizontalAlignment="Center" Grid.Row="1" Grid.Column="2"/>
         <Slider x:Name="Pinza2Slider" Maximum="180" Value="{Binding Arm.Pinza, Mode=TwoWay}"  HorizontalAlignment="Left" Height="300" VerticalAlignment="Bottom" Orientation="Vertical" Grid.Row="1" Margin="30,0,0,0" Grid.Column="2"/>
-        <TextBlock Text="Third Segment" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="30" FontSize="32" Foreground="White" Grid.Column="2" />
+        <TextBlock Text="Third Segment" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Margin="30" FontSize="32" Foreground="White" Grid.Column="2" />
         <TextBlock Text="ArmDuino Base" Grid.ColumnSpan="3" FontSize="72" Margin="30" Foreground="White"/>
-        <Button Content="Connect!" x:Name="Connect" Grid.Column="2" Margin="40" Click="Connect_Click"/>
+        <Button Content="Connect!" x:Name="Connect" FontSize="42" Grid.Column="3" Margin="40" Click="Connect_Click"/>
+        <Image Name="videoImage" Grid.Column="3" Grid.Row="1" Width="Auto" Height="Auto"/>
+        <Canvas Grid.Column="3" Grid.Row="1" Background="Transparent">
+            <Ellipse Fill="Red"
+                         Height="20"
+                         Width="20"
+                         Name="ellipseLeftHand"
+                         Stroke="White" />
+            <Ellipse Fill="Red"
+                         Height="20"
+                         Width="20"
+                         Name="ellipseRightHand"
+                         Stroke="White" />
+            <Ellipse Fill="Red"
+                         Height="20"
+                         Width="20"
+                         Name="ellipseHead"
+                         Stroke="White" />
+        </Canvas>
     </Grid>
 </Window>
