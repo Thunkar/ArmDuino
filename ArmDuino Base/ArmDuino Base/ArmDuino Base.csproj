@@ -66,6 +66,7 @@
     <Compile Include="Model\ArmCommander.cs" />
     <Compile Include="Model\COMHandler.cs" />
     <Compile Include="Model\CommandRecognizer.cs" />
+    <Compile Include="Model\KinectHandler.cs" />
     <Compile Include="Model\SpokenCommand.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">

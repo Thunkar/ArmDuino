@@ -231,42 +231,22 @@ namespace ArmDuino_Base
             ellipseRightHand.Visibility = System.Windows.Visibility.Visible;
         }
 
-        private void ShowWindow()
-        {
-            this.Topmost = true;
-            this.WindowState = System.Windows.WindowState.Maximized;
-        }
-
-        private void HideWindow()
-        {
-            this.Topmost = false;
-            this.WindowState = System.Windows.WindowState.Minimized;
-        }
 
 
         private void InitializeSpeechRecognition()
         {
+            //Activation commands
             Grammar activate = new Grammar(new GrammarBuilder("Ok llarvis, activa el control por voz"));
             activate.Name = "activate";
             Grammar deactivate = new Grammar(new GrammarBuilder("Ok llarvis, desactiva el control por voz"));
             deactivate.Name = "deactivate";
             recognizer.LoadGrammar(activate);
             recognizer.LoadGrammar(deactivate);
-            //Ppt commands
-            Grammar show = new Grammar(new GrammarBuilder("Ok llarvis, muestra la ventana"));
-            show.Name = "show";
-            recognizer.LoadGrammar(show);
-            Grammar minimize = new Grammar(new GrammarBuilder("Ok llarvis, minimiza la ventana"));
-            minimize.Name = "minimize";
-            recognizer.LoadGrammar(minimize);
-            Grammar abreppt = new Grammar(new GrammarBuilder("Ok llarvis, abre la presentación"));
-            abreppt.Name = "abreppt";
-            recognizer.LoadGrammar(abreppt);
-
+            //Robotic arm commands
             recognizer.loadCommand("Ok llarvis, saluda", MainViewModel.Current.Salute);
             recognizer.loadCommand("Ok llarvis, recoge", MainViewModel.Current.Picker);
             recognizer.loadCommand("Ok llarvis, ponte recto", MainViewModel.Current.Rect);
-            //recognizer.loadCommand("Ok robot, hazme una paja", MainViewModel.Current.Paja);
+            recognizer.loadCommand("Ok robot, hazme una paja", MainViewModel.Current.Paja);
             recognizer.loadCommand("Ok llarvis, felicita las navidades", MainViewModel.Current.Navidades);
             recognizer.loadCommand("Ok llarvis, para la música", MainViewModel.Current.ParalaMusica);
             recognizer.loadCommand("Ok llarvis, felicita a mi hermano por su cumple", MainViewModel.Current.Cumpleaños);
@@ -309,34 +289,6 @@ namespace ArmDuino_Base
 
         public void voiceControlHandler(String command)
         {
-            if (command == "Ok llarvis, abre la presentación")
-            {
-                synth.SpeakAsync("Abriendo la presentación");
-                var app = new Microsoft.Office.Interop.PowerPoint.Application();
-                var pres = app.Presentations;
-                var file = pres.Open(@"C:\Users\Gregorio\Documents\Curso 2013-2014\Presentación institutos\Por qué estudiar ingeniería.pptx", MsoTriState.msoTrue, MsoTriState.msoTrue, MsoTriState.msoFalse);
-                Slides slides = file.Slides;
-                Microsoft.Office.Interop.PowerPoint.SlideShowSettings objSSS;
-                //Run the Slide show
-                objSSS = file.SlideShowSettings;
-                objSSS.Run();
-            }
-            if (command == "Ok llarvis, muestra la ventana")
-            {
-                this.Dispatcher.BeginInvoke((Action)delegate
-                {
-                    ShowWindow();
-                });
-                synth.SpeakAsync("Mostrando ventana");
-            }
-            if (command == "Ok llarvis, minimiza la ventana")
-            {
-                this.Dispatcher.BeginInvoke((Action)delegate
-                {
-                    HideWindow();
-                });
-                synth.SpeakAsync("Minimizando ventana");
-            }
             SpokenCommand result;
             String response;
             if (recognizer.Commands.TryGetValue(command, out  result))

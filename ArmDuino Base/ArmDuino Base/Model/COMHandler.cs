@@ -37,7 +37,7 @@ namespace ArmDuino_Base.Model
                 }
             }
 
-            Port = new SerialPort(portnames[0], 115200);
+            Port = new SerialPort("COM6", 115200);
             while (!Port.IsOpen)
             {
                 try
