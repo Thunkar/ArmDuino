@@ -98,10 +98,9 @@ namespace ArmDuino_Base.Model
                 byte[] buffer = dataToBytes();
                 Port.Write(buffer, 0, buffer.Length);
             }
-            catch(Exception)
+            catch(Exception e)
             {
-                Application.Current.Shutdown();
-                throw new Exception("PUM");
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
         }
 

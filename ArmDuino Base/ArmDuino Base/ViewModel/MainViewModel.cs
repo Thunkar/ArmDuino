@@ -12,6 +12,7 @@ namespace ArmDuino_Base.ViewModel
     {
         public static MainViewModel Current;
         public COMHandler COMHandler { get; set; }
+        public KinectHandler KinectHandler { get; set; }
         public static Arm Arm { get; set; }
         public SpokenCommand Picker { get; set; }
         public SpokenCommand Rect { get; set; }
@@ -25,6 +26,7 @@ namespace ArmDuino_Base.ViewModel
             Current = this;
             Arm = new Arm();
             COMHandler = new COMHandler(Arm);
+            KinectHandler = new KinectHandler();
             loadCommands();
         }
 

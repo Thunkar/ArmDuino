@@ -32,23 +32,50 @@
         <Slider x:Name="Pinza2Slider" Maximum="180" Value="{Binding Arm.Pinza, Mode=TwoWay}"  HorizontalAlignment="Left" Height="300" VerticalAlignment="Bottom" Orientation="Vertical" Grid.Row="1" Margin="30,0,0,0" Grid.Column="2"/>
         <TextBlock Text="Third Segment" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Margin="30" FontSize="32" Foreground="White" Grid.Column="2" />
         <TextBlock Text="ArmDuino Base" Grid.ColumnSpan="3" FontSize="72" Margin="30" Foreground="White"/>
-        <Button Content="Connect!" x:Name="Connect" FontSize="42" Grid.Column="3" Margin="40" Click="Connect_Click"/>
-        <Image Name="videoImage" Grid.Column="3" Grid.Row="1" Width="Auto" Height="Auto"/>
+        <Grid Grid.Column="3" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Start Kinect" Grid.Column="1" x:Name="StartKinectButton" FontSize="42" Margin="30" Click="StartKinectButton_Click"/>
+            <Button Content="Connect!" x:Name="Connect" FontSize="42" Margin="30" Click="Connect_Click"/>
+        </Grid>
+        <Image Name="videoImage" Grid.Column="3" Grid.Row="1" Width="Auto" Height="Auto" Source="{Binding KinectHandler.ImageFromKinect}"/>
         <Canvas Grid.Column="3" Grid.Row="1" Background="Transparent">
             <Ellipse Fill="Red"
-                         Height="20"
-                         Width="20"
+                         Height="10"
+                         Width="10"
                          Name="ellipseLeftHand"
                          Stroke="White" />
             <Ellipse Fill="Red"
-                         Height="20"
-                         Width="20"
+                         Height="10"
+                         Width="10"
                          Name="ellipseRightHand"
                          Stroke="White" />
             <Ellipse Fill="Red"
-                         Height="20"
-                         Width="20"
+                         Height="10"
+                         Width="10"
                          Name="ellipseHead"
+                         Stroke="White" />
+            <Ellipse Fill="Red"
+                         Height="10"
+                         Width="10"
+                         Name="ellipseRightElbow"
+                         Stroke="White" />
+            <Ellipse Fill="Red"
+                         Height="10"
+                         Width="10"
+                         Name="ellipseRightShoulder"
+                         Stroke="White" />
+            <Ellipse Fill="Red"
+                         Height="10"
+                         Width="10"
+                         Name="ellipseLeftShoulder"
+                         Stroke="White" />
+            <Ellipse Fill="Red"
+                         Height="10"
+                         Width="10"
+                         Name="ellipseRightWrist"
                          Stroke="White" />
         </Canvas>
     </Grid>
