@@ -48,7 +48,13 @@ namespace ArmDuino_Base
             COMHandler.Port.DataReceived += Port_DataReceived;
             synth.SetOutputToDefaultAudioDevice();
             InitializeSpeechRecognition();
+            this.Closed += MainWindow_Closed;
+        }
 
+        void MainWindow_Closed(object sender, EventArgs e)
+        {
+            COMHandler.Port.Close();
+            COMHandler.Port.Dispose();
         }
 
         public void KinectMapper()

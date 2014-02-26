@@ -1,5 +1,9 @@
 package es.teora.armduinobase.view;
 
-public class MainWindow {
+import java.awt.Frame;
+
+public class MainWindow extends Frame {
+	
+	
 
 }
