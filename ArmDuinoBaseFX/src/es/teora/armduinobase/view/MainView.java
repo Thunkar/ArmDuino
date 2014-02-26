@@ -3,7 +3,8 @@ package es.teora.armduinobase.view;
 
 
 import java.io.IOException;
-
+import java.util.Timer;
+import java.util.TimerTask;
 import es.teora.armduinobase.controller.MainController;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -33,6 +34,8 @@ public class MainView extends Application {
 	public Button Connect;
 	public GridPane MainGrid;
 	public static MainController MainController;
+	public Timer timer = new Timer();
+	public boolean connected = false;
 	
 	@Override
 	public void start(Stage primaryStage) 
@@ -53,6 +56,7 @@ public class MainView extends Application {
 			    @Override
 			    public void handle(WindowEvent event) {
 			        try {
+			        	timer.cancel();
 			        	MainController.COMHandler.close();
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -68,6 +72,7 @@ public class MainView extends Application {
 	}
 	
 	
+	
 	public void setSliders()
 	{
 		Connect = new Button();
@@ -80,6 +85,8 @@ public class MainView extends Application {
 						MainController.COMHandler.getOutput().write(init, 0, 4);
 						MainController.COMHandler.currentArm.updateAngles();
 						MainController.COMHandler.writeDataBytes();
+						connected = true;
+						startSending();
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -96,8 +103,6 @@ public class MainView extends Application {
 	                Number old_val, Number new_val) 
 	            {
 	            		MainController.COMHandler.currentArm.setBaseAng(new_val.intValue());
-	            		MainController.COMHandler.currentArm.updateAngles();
-	            		MainController.COMHandler.writeDataBytes();
 	            }
 	        });
 		Horizontal1Slider = new Slider();
@@ -111,8 +116,6 @@ public class MainView extends Application {
 	                Number old_val, Number new_val) 
 	            {
 	            		MainController.COMHandler.currentArm.setHorizontal1Ang(new_val.intValue());
-	            		MainController.COMHandler.currentArm.updateAngles();
-	            		MainController.COMHandler.writeDataBytes();
 	            }
 	        });
 		Vertical1Slider = new Slider();
@@ -126,8 +129,6 @@ public class MainView extends Application {
 	                Number old_val, Number new_val) 
 	            {
 	            		MainController.COMHandler.currentArm.setVertical1Ang(new_val.intValue());
-	            		MainController.COMHandler.currentArm.updateAngles();
-	            		MainController.COMHandler.writeDataBytes();
 	            }
 	        });
 		Horizontal2Slider = new Slider();
@@ -141,8 +142,6 @@ public class MainView extends Application {
 	                Number old_val, Number new_val) 
 	            {
 	            		MainController.COMHandler.currentArm.setHorizontal2Ang(new_val.intValue());
-	            		MainController.COMHandler.currentArm.updateAngles();
-	            		MainController.COMHandler.writeDataBytes();
 	            }
 	        });
 		Vertical2Slider = new Slider();
@@ -156,8 +155,6 @@ public class MainView extends Application {
 	                Number old_val, Number new_val) 
 	            {
 	            		MainController.COMHandler.currentArm.setVertical2Ang(new_val.intValue());
-	            		MainController.COMHandler.currentArm.updateAngles();
-	            		MainController.COMHandler.writeDataBytes();
 	            }
 	        });
 		Horizontal3Slider = new Slider();
@@ -171,8 +168,6 @@ public class MainView extends Application {
 	                Number old_val, Number new_val) 
 	            {
 	            		MainController.COMHandler.currentArm.setHorizontal3Ang(new_val.intValue());
-	            		MainController.COMHandler.currentArm.updateAngles();
-	            		MainController.COMHandler.writeDataBytes();
 	            }
 	        });
 		GripSlider = new Slider();
@@ -186,10 +181,23 @@ public class MainView extends Application {
 	                Number old_val, Number new_val) 
 	            {
 	            		MainController.COMHandler.currentArm.setGripAng(new_val.intValue());
-	            		MainController.COMHandler.currentArm.updateAngles();
-	            		MainController.COMHandler.writeDataBytes();
+	            		
 	            }
 	        });
+	}
+	
+	public void startSending()
+	{
+		if(connected){
+			timer.schedule((new TimerTask() {
+				  @Override
+				  public void run() 
+				  {
+					  MainController.COMHandler.currentArm.updateAngles();
+					  MainController.COMHandler.writeDataBytes();  
+				  }
+				}), 0, 100);
+		}
 	}
 	
 	public static void main(String[] args) 

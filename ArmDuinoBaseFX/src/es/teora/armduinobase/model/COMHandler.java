@@ -3,8 +3,6 @@ package es.teora.armduinobase.model;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.Enumeration;
-
 import gnu.io.*;
 
 
@@ -14,12 +12,6 @@ public class COMHandler implements SerialPortEventListener{
 	public boolean isConnected = false;
 	public Arm currentArm;
 	private SerialPort Port;
-	/** The port we're normally going to use. */
-	private static final String PORT_NAMES[] = { 
-		"/dev/tty.usbserial-A9007UX1", // Mac OS X
-		"/dev/ttyUSB0", // Linux
-		"COM6", // Windows
-	};
 	/**
 	 * A BufferedReader which will be fed by a InputStreamReader 
 	 * converting the bytes into characters 
@@ -56,21 +48,11 @@ public class COMHandler implements SerialPortEventListener{
 
 	}
 
-	@SuppressWarnings("rawtypes")
+
 	public void Initialize()
 	{
 		CommPortIdentifier portId = null;
-		Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
-		//First, Find an instance of serial port as set in PORT_NAMES.
-		while (portEnum.hasMoreElements()) {
-			CommPortIdentifier currPortId = (CommPortIdentifier) portEnum.nextElement();
-			for (String portName : PORT_NAMES) {
-				if (currPortId.getName().equals(portName)) {
-					portId = currPortId;
-					break;
-				}
-			}
-		}
+		portId = (CommPortIdentifier)CommPortIdentifier.getPortIdentifiers().nextElement();
 		if (portId == null) {
 			System.out.println("Could not find COM port.");
 			return;
