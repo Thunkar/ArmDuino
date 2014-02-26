@@ -4,21 +4,21 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Enumeration;
+
 import gnu.io.*;
 
 
 public class COMHandler implements SerialPortEventListener{
 
 
-
 	public boolean isConnected = false;
 	public Arm currentArm;
-	SerialPort Port;
+	private SerialPort Port;
 	/** The port we're normally going to use. */
 	private static final String PORT_NAMES[] = { 
 		"/dev/tty.usbserial-A9007UX1", // Mac OS X
 		"/dev/ttyUSB0", // Linux
-		"COM3", // Windows
+		"COM6", // Windows
 	};
 	/**
 	 * A BufferedReader which will be fed by a InputStreamReader 
@@ -28,6 +28,22 @@ public class COMHandler implements SerialPortEventListener{
 	private BufferedReader input;
 	/** The output stream to the port */
 	private OutputStream output;
+	public BufferedReader getInput() {
+		return input;
+	}
+
+	public void setInput(BufferedReader input) {
+		this.input = input;
+	}
+
+	public OutputStream getOutput() {
+		return output;
+	}
+
+	public void setOutput(OutputStream output) {
+		this.output = output;
+	}
+
 	/** Milliseconds to block while waiting for port open */
 	private static final int TIME_OUT = 2000;
 	/** Default bits per second for COM port. */
@@ -36,14 +52,15 @@ public class COMHandler implements SerialPortEventListener{
 	public COMHandler(Arm currentArm)
 	{
 		this.currentArm = currentArm;
+		Initialize();
 
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void Initialize()
 	{
 		CommPortIdentifier portId = null;
 		Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
-
 		//First, Find an instance of serial port as set in PORT_NAMES.
 		while (portEnum.hasMoreElements()) {
 			CommPortIdentifier currPortId = (CommPortIdentifier) portEnum.nextElement();
@@ -61,22 +78,22 @@ public class COMHandler implements SerialPortEventListener{
 
 		try {
 			// open serial port, and use class name for the appName.
-			Port = (SerialPort) portId.open(this.getClass().getName(),
-					TIME_OUT);
+			setPort((SerialPort) portId.open(this.getClass().getName(),
+					TIME_OUT));
 
 			// set port parameters
-			Port.setSerialPortParams(DATA_RATE,
+			getPort().setSerialPortParams(DATA_RATE,
 					SerialPort.DATABITS_8,
 					SerialPort.STOPBITS_1,
 					SerialPort.PARITY_NONE);
 
 			// open the streams
-			input = new BufferedReader(new InputStreamReader(Port.getInputStream()));
-			output = Port.getOutputStream();
+			input = new BufferedReader(new InputStreamReader(getPort().getInputStream()));
+			output = getPort().getOutputStream();
 
 			// add event listeners
-			Port.addEventListener(this);
-			Port.notifyOnDataAvailable(true);
+			getPort().addEventListener(this);
+			getPort().notifyOnDataAvailable(true);
 		} catch (Exception e) {
 			System.err.println(e.toString());
 		}
@@ -102,9 +119,9 @@ public class COMHandler implements SerialPortEventListener{
 	 * This will prevent port locking on platforms like Linux.
 	 */
 	public synchronized void close() {
-		if (Port != null) {
-			Port.removeEventListener();
-			Port.close();
+		if (getPort() != null) {
+			getPort().removeEventListener();
+			getPort().close();
 		}
 	}
 
@@ -112,17 +129,17 @@ public class COMHandler implements SerialPortEventListener{
 	public String dataToString()
 	{
 		String result = "";
-		for (int i = 0; i < currentArm.CurrentAngles.length; i++)
+		for (int i = 0; i < currentArm.getCurrentAngles().length; i++)
 		{
-			if (currentArm.CurrentAngles[i] < 10)
+			if (currentArm.getCurrentAngles()[i] < 10)
 			{
-				result += "00" + currentArm.CurrentAngles[i];
+				result += "00" + currentArm.getCurrentAngles()[i];
 			}
-			else if (currentArm.CurrentAngles[i] < 100)
+			else if (currentArm.getCurrentAngles()[i] < 100)
 			{
-				result += "0" + currentArm.CurrentAngles[i];
+				result += "0" + currentArm.getCurrentAngles()[i];
 			}
-			else result += currentArm.CurrentAngles[i];
+			else result += currentArm.getCurrentAngles()[i];
 		}
 		return result;
 	}
@@ -144,10 +161,19 @@ public class COMHandler implements SerialPortEventListener{
 		{
 			byte[] buffer = dataToBytes();
 			output.write(buffer, 0, buffer.length);
+			System.out.println(buffer);
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
+	}
+
+	public SerialPort getPort() {
+		return Port;
+	}
+
+	public void setPort(SerialPort port) {
+		Port = port;
 	}
 }
