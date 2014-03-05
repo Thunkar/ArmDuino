@@ -110,6 +110,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\HappyBirthdayGladOS.wav" />
     <Content Include="Assets\jingle.wav" />
   </ItemGroup>
   <ItemGroup>

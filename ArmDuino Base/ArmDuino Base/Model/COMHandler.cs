@@ -12,11 +12,11 @@ namespace ArmDuino_Base.Model
     {
         public static SerialPort Port;
         public bool isConnected = false;
-        public Arm currentArm;
 
-        public COMHandler(Arm currentArm)
+
+        public COMHandler()
         {
-            this.currentArm = currentArm;
+
         }
 
         public void Initialize()
@@ -62,7 +62,7 @@ namespace ArmDuino_Base.Model
 
 
 
-        public String dataToString()
+        public String dataToString(Arm currentArm)
         {
             String result = "";
             for (int i = 0; i < currentArm.CurrentAngles.Length; i++)
@@ -80,9 +80,9 @@ namespace ArmDuino_Base.Model
             return result;
         }
 
-        public byte[] dataToBytes()
+        public byte[] dataToBytes(Arm currentArm)
         {
-            char[] result = dataToString().ToCharArray();
+            char[] result = dataToString(currentArm).ToCharArray();
             byte[] buffer = new byte[21];
             for (int i = 0; i < result.Length; i++)
             {
@@ -91,22 +91,17 @@ namespace ArmDuino_Base.Model
             return buffer;
         }
 
-        public void writeDataBytes()
+        public void writeDataBytes(Arm currentArm)
         {
             try
             {
-                byte[] buffer = dataToBytes();
+                byte[] buffer = dataToBytes(currentArm);
                 Port.Write(buffer, 0, buffer.Length);
             }
             catch(Exception e)
             {
                 System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
-        }
-
-        public void writeDataString()
-        {
-            Port.WriteLine(dataToString());
         }
     }
 }

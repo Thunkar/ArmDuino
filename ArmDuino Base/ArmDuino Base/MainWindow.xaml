@@ -36,9 +36,11 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button Content="Start Kinect" Grid.Column="1" x:Name="StartKinectButton" FontSize="42" Margin="30" Click="StartKinectButton_Click"/>
-            <Button Content="Connect!" x:Name="Connect" FontSize="42" Margin="30" Click="Connect_Click"/>
+            <Button Content="Start Kinect" Grid.Column="2" x:Name="StartKinectButton" FontSize="24" Margin="30" Click="StartKinectButton_Click"/>
+            <Button x:Name="StartSpeechRecog" Grid.Column="1" Content="Voice recognition" FontSize="24" Margin="30" Click="StartSpeechRecog_Click"/>
+            <Button Content="Connect" x:Name="Connect" FontSize="24" Margin="30" Click="Connect_Click"/>
         </Grid>
         <Image Name="videoImage" Grid.Column="3" Grid.Row="1" Width="Auto" Height="Auto" Source="{Binding KinectHandler.ImageFromKinect}"/>
         <Canvas Grid.Column="3" Grid.Row="1" Background="Transparent">

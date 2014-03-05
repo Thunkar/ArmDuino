@@ -59,18 +59,18 @@ namespace ArmDuino_Base
 
         public void KinectMapper()
         {
+            Skeleton currentSkeleton = MainViewModel.Current.KinectHandler.closestSkeleton;
             if (MainViewModel.Current.KinectHandler.Sensor != null && MainViewModel.Current.KinectHandler.Sensor.SkeletonStream.IsEnabled
-    && MainViewModel.Current.KinectHandler.closestSkeleton != null)
+    && currentSkeleton != null)
             {
-                double horizontal1angle = MainViewModel.Current.KinectHandler.RightJointsAngle(MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.ShoulderLeft], MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.ShoulderRight], MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.ElbowRight], MainViewModel.Current.KinectHandler.closestSkeleton);
-                double horizontal2angle = MainViewModel.Current.KinectHandler.RightJointsAngle(MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.ShoulderRight], MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.ElbowRight], MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.WristRight], MainViewModel.Current.KinectHandler.closestSkeleton);
-                double horizontal3angle = MainViewModel.Current.KinectHandler.RightJointsAngle(MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.ElbowRight], MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.WristRight], MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.HandRight], MainViewModel.Current.KinectHandler.closestSkeleton);
-                double pinzaAngle = MainViewModel.Current.KinectHandler.LeftJointsAngle(MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.ElbowLeft], MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.ShoulderLeft], MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.WristLeft], MainViewModel.Current.KinectHandler.closestSkeleton);
-                MainViewModel.Arm.Horizontal1Ang = (int)horizontal1angle;
-                MainViewModel.Arm.Horizontal2Ang = (int)horizontal2angle;
-                MainViewModel.Arm.Horizontal3Ang = (int)horizontal3angle;
-                MainViewModel.Arm.Pinza = (int)pinzaAngle;
-                System.Diagnostics.Debug.WriteLine(horizontal2angle);
+                double horizontal1angle = MainViewModel.Current.KinectHandler.RightJointsAngle(currentSkeleton.Joints[JointType.ShoulderLeft], currentSkeleton.Joints[JointType.ShoulderRight], currentSkeleton.Joints[JointType.ElbowRight], currentSkeleton);
+                double horizontal2angle = MainViewModel.Current.KinectHandler.RightJointsAngle(currentSkeleton.Joints[JointType.ShoulderRight], currentSkeleton.Joints[JointType.ElbowRight], currentSkeleton.Joints[JointType.WristRight], currentSkeleton);
+                double horizontal3angle = MainViewModel.Current.KinectHandler.RightJointsAngle(currentSkeleton.Joints[JointType.ElbowRight], currentSkeleton.Joints[JointType.WristRight], currentSkeleton.Joints[JointType.HandRight], currentSkeleton);
+                double pinzaAngle = MainViewModel.Current.KinectHandler.LeftJointsAngle(currentSkeleton.Joints[JointType.ElbowLeft], currentSkeleton.Joints[JointType.ShoulderLeft], currentSkeleton.Joints[JointType.WristLeft], currentSkeleton);
+                MainViewModel.Current.Arm.Horizontal1Ang = (int)horizontal1angle;
+                MainViewModel.Current.Arm.Horizontal2Ang = (int)horizontal2angle;
+                MainViewModel.Current.Arm.Horizontal3Ang = (int)horizontal3angle;
+                MainViewModel.Current.Arm.Pinza = (int)pinzaAngle;
             }
         }
 
@@ -99,16 +99,17 @@ namespace ArmDuino_Base
 
         void CompositionTarget_Rendering(object sender, EventArgs e)
         {
+            Skeleton currentSkeleton = MainViewModel.Current.KinectHandler.closestSkeleton;
             if (MainViewModel.Current.KinectHandler.Sensor != null && MainViewModel.Current.KinectHandler.Sensor.SkeletonStream.IsEnabled 
-                && MainViewModel.Current.KinectHandler.closestSkeleton != null)
+                && currentSkeleton != null)
             {
-                SetEllipsePosition(ellipseHead, MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.Head], false);
-                SetEllipsePosition(ellipseLeftHand, MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.HandLeft], false);
-                SetEllipsePosition(ellipseRightHand, MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.HandRight], true);
-                SetEllipsePosition(ellipseRightElbow, MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.ElbowRight], true);
-                SetEllipsePosition(ellipseRightWrist, MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.WristRight], true);
-                SetEllipsePosition(ellipseRightShoulder, MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.ShoulderRight], true);
-                SetEllipsePosition(ellipseLeftShoulder, MainViewModel.Current.KinectHandler.closestSkeleton.Joints[JointType.ShoulderLeft], true);
+                SetEllipsePosition(ellipseHead, currentSkeleton.Joints[JointType.Head], false);
+                SetEllipsePosition(ellipseLeftHand, currentSkeleton.Joints[JointType.HandLeft], false);
+                SetEllipsePosition(ellipseRightHand, currentSkeleton.Joints[JointType.HandRight], true);
+                SetEllipsePosition(ellipseRightElbow, currentSkeleton.Joints[JointType.ElbowRight], true);
+                SetEllipsePosition(ellipseRightWrist, currentSkeleton.Joints[JointType.WristRight], true);
+                SetEllipsePosition(ellipseRightShoulder, currentSkeleton.Joints[JointType.ShoulderRight], true);
+                SetEllipsePosition(ellipseLeftShoulder, currentSkeleton.Joints[JointType.ShoulderLeft], true);
             } 
         }
 
@@ -140,7 +141,7 @@ namespace ArmDuino_Base
             {
                 synth.SpeakAsync("Control por voz activado");
                 voiceControlActivated = true;
-                ArmCommander = new ArmCommander(MainViewModel.Arm);
+                ArmCommander = new ArmCommander(MainViewModel.Current.Arm);
             }
             if (e.Result.Text == "Ok llarvis, desactiva el control por voz" && e.Result.Confidence >= 0.5)
             {
@@ -166,8 +167,8 @@ namespace ArmDuino_Base
         void Timer_Tick(object sender, EventArgs e)
         {
             KinectMapper();
-            MainViewModel.Arm.updateAngles();
-            MainViewModel.Current.COMHandler.writeDataBytes();
+            MainViewModel.Current.Arm.updateAngles();
+            MainViewModel.Current.COMHandler.writeDataBytes(MainViewModel.Current.Arm);
         }
 
 
@@ -212,6 +213,10 @@ namespace ArmDuino_Base
         private void StartKinectButton_Click(object sender, RoutedEventArgs e)
         {
             MainViewModel.Current.KinectHandler.InitializeSensor();
+        }
+
+        private void StartSpeechRecog_Click(object sender, RoutedEventArgs e)
+        {
             this.StartSpeechRecognition();
         }
     }
