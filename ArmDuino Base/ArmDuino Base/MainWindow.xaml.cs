@@ -20,8 +20,7 @@ using System.Speech.Recognition;
 using System.Speech.Synthesis;
 using Microsoft.Kinect;
 using System.Speech.AudioFormat;
-using Microsoft.Office.Interop.PowerPoint;
-using Microsoft.Office.Core;
+
 
 namespace ArmDuino_Base
 {
@@ -44,11 +43,8 @@ namespace ArmDuino_Base
             InitializeComponent();
             Timer.Interval = new TimeSpan(0, 0, 0, 0, 100);
             Timer.Tick += Timer_Tick;
-            MainViewModel.Current.COMHandler.Initialize();
-            COMHandler.Port.DataReceived += Port_DataReceived;
-            synth.SetOutputToDefaultAudioDevice();
-            InitializeSpeechRecognition();
             this.Closed += MainWindow_Closed;
+            synth.SetOutputToDefaultAudioDevice();
         }
 
         void MainWindow_Closed(object sender, EventArgs e)
@@ -91,7 +87,7 @@ namespace ArmDuino_Base
             recognizer.loadCommand("Ok robot, hazme una paja", MainViewModel.Current.Paja);
             recognizer.loadCommand("Ok llarvis, felicita las navidades", MainViewModel.Current.Navidades);
             recognizer.loadCommand("Ok llarvis, para la música", MainViewModel.Current.ParalaMusica);
-            recognizer.loadCommand("Ok llarvis, felicita a mi hermano por su cumple", MainViewModel.Current.Cumpleaños);
+            recognizer.loadCommand("Ok llarvis, felicítame por mi cumpleaños", MainViewModel.Current.Cumpleaños);
             recognizer.RequestRecognizerUpdate();
             recognizer.SpeechRecognized += _recognizer_SpeechRecognized;
             CompositionTarget.Rendering += CompositionTarget_Rendering;
@@ -116,6 +112,7 @@ namespace ArmDuino_Base
 
         private void StartSpeechRecognition()
         {
+            InitializeSpeechRecognition();
             if (MainViewModel.Current.KinectHandler.Sensor != null)
             {
                 var audioSource = MainViewModel.Current.KinectHandler.Sensor.AudioSource;
@@ -205,6 +202,8 @@ namespace ArmDuino_Base
 
         private void Connect_Click(object sender, RoutedEventArgs e)
         {
+            MainViewModel.Current.COMHandler.Initialize();
+            COMHandler.Port.DataReceived += Port_DataReceived;
             byte[] init = { 7, 7, 7, 7 };
             COMHandler.Port.Write(init, 0, 4);
             Timer.Start();
@@ -212,7 +211,7 @@ namespace ArmDuino_Base
 
         private void StartKinectButton_Click(object sender, RoutedEventArgs e)
         {
-            MainViewModel.Current.KinectHandler.InitializeSensor();
+            MainViewModel.Current.KinectHandler.initTask.Start();
         }
 
         private void StartSpeechRecog_Click(object sender, RoutedEventArgs e)

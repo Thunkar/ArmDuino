@@ -33,7 +33,7 @@ namespace ArmDuino_Base.Model
             sound.Stop();
             if (this.soundname != null)
             {
-                Uri source = new Uri("C:\\Users\\Gregorio\\Documents\\Curso 2013-2014\\Brazo Robótico\\ArmDuino\\ArmDuino Base\\ArmDuino Base\\Assets\\" + this.soundname +".wav");
+                Uri source = new Uri("C:\\Users\\Gregorio\\Documents\\GitHub\\ArmDuino\\ArmDuino Base\\ArmDuino Base\\Assets\\" + this.soundname +".wav");
                 sound.Open(source);
                 sound.Position = TimeSpan.Zero;
                 sound.Play();

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -32,18 +33,35 @@ namespace ArmDuino_Base.Model
             }
         }
         public Skeleton closestSkeleton;
+        public Thread initTask;
+        private bool busy;
+        public bool Busy
+        {
+            get
+            {
+                return busy;
+            }
+            set
+            {
+                busy = value;
+                NotifyPropertyChanged("Busy");
+            }
+        }
 
         public KinectHandler()
         {
-
+            initTask = new Thread(new ThreadStart(InitializeSensor));
+            Busy = false;
         }
 
         public void InitializeSensor()
         {
+            Busy = true;
             Sensor = KinectSensor.KinectSensors.FirstOrDefault();
             if (Sensor == null)
             {
                 MessageBox.Show("This application requires a Kinect sensor.");
+                return;
             }
 
             Sensor.Start();
@@ -57,6 +75,8 @@ namespace ArmDuino_Base.Model
             Sensor.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(sensor_SkeletonFrameReady);
 
             //sensor.ElevationAngle = 10;
+
+            Busy = false;
         }
 
         void sensor_ColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)

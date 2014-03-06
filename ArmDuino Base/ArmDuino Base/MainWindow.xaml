@@ -7,8 +7,9 @@
     <Window.Resources>
         <vm:MainViewModel x:Key="MainViewModel"/>
         <converters:SliderMapper x:Key="SliderMapper"/>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
     </Window.Resources>
-    <Grid Background="DimGray" DataContext="{StaticResource MainViewModel}">
+    <Grid Background="Black" DataContext="{StaticResource MainViewModel}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
@@ -20,7 +21,7 @@
             <RowDefinition Height="480"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Slider x:Name="BaseSlider" Maximum="180" Value="{Binding Arm.BaseAng, Mode=TwoWay}"  Width="500" VerticalAlignment="Bottom" Margin="20" Orientation="Horizontal" Grid.ColumnSpan="3" HorizontalAlignment="Center" Grid.Row="3"/>
+        <Slider x:Name="BaseSlider" Maximum="180" Value="{Binding Arm.BaseAng, Mode=TwoWay}"  Width="500" VerticalAlignment="Bottom" Margin="0,0,0,40" Orientation="Horizontal" Grid.ColumnSpan="3" HorizontalAlignment="Center" Grid.Row="3"/>
         <TextBlock Text="Base" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10" FontSize="32" Foreground="White" Grid.Column="1" />
         <Slider x:Name="Horizontal1Slider" Maximum="180" Value="{Binding Arm.Horizontal1Ang, Mode=TwoWay}"  Height="300" VerticalAlignment="Bottom" Orientation="Vertical"  HorizontalAlignment="Center" Grid.Row="1"/>
         <Slider x:Name="Vertical1Slider" Maximum="180" Value="{Binding Arm.Vertical1Ang, Mode=TwoWay}"  HorizontalAlignment="Left" Height="300" VerticalAlignment="Bottom" Orientation="Vertical" Grid.Row="1" Margin="30,0,0,0"/>
@@ -38,10 +39,17 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button Content="Start Kinect" Grid.Column="2" x:Name="StartKinectButton" FontSize="24" Margin="30" Click="StartKinectButton_Click"/>
-            <Button x:Name="StartSpeechRecog" Grid.Column="1" Content="Voice recognition" FontSize="24" Margin="30" Click="StartSpeechRecog_Click"/>
-            <Button Content="Connect" x:Name="Connect" FontSize="24" Margin="30" Click="Connect_Click"/>
+            <Button Grid.Column="2" Background="White" BorderBrush="Gray" BorderThickness="3" x:Name="StartKinectButton" FontSize="24" Margin="30" Click="StartKinectButton_Click">
+                <TextBlock Text="Start Kinect" FontWeight="SemiBold" TextWrapping="Wrap"/>
+            </Button>
+            <Button x:Name="StartSpeechRecog" BorderBrush="Gray" BorderThickness="3" Background="White" Grid.Column="1" FontSize="24" Margin="30" Click="StartSpeechRecog_Click">
+                <TextBlock FontWeight="SemiBold" Text="Voice Recognition" TextWrapping="Wrap" TextAlignment="Center"/>
+            </Button>
+            <Button Background="White" x:Name="Connect" BorderBrush="Gray" BorderThickness="3" FontSize="24" Margin="30" Click="Connect_Click">
+                <TextBlock Text="Connect" FontWeight="SemiBold"  TextAlignment="Center"/>
+            </Button>
         </Grid>
+        <ProgressBar Name="KinectBusy" Visibility="Visible" Height="20" IsIndeterminate="{Binding KinectHandler.Busy}"  Grid.Column="3" Grid.Row="1"/>
         <Image Name="videoImage" Grid.Column="3" Grid.Row="1" Width="Auto" Height="Auto" Source="{Binding KinectHandler.ImageFromKinect}"/>
         <Canvas Grid.Column="3" Grid.Row="1" Background="Transparent">
             <Ellipse Fill="Red"

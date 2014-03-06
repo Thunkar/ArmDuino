@@ -60,6 +60,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\BooleanToVisibilityConverter.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Converters\SliderMapper.cs" />
     <Compile Include="Model\Arm.cs" />
     <Compile Include="Model\ArmCommand.cs" />
