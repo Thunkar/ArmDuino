@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
+
 namespace ArmDuino_Base.Model
 {
     class KinectHandler : INotifyPropertyChanged
@@ -60,26 +61,30 @@ namespace ArmDuino_Base.Model
             Sensor = KinectSensor.KinectSensors.FirstOrDefault();
             if (Sensor == null)
             {
-                MessageBox.Show("This application requires a Kinect sensor.");
-                return;
+                MessageBoxResult error = MessageBox.Show("This feature requires a Kinect for Windows sensor. Note that if you have a Kinect for Xbox360 sensor, you can still use it from Visual Studio (get the source code!)", "Le Fail", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (error == MessageBoxResult.OK)
+                {
+                    Busy = false;
+                    return;
+                }
+
             }
 
             Sensor.Start();
-
             Sensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
-            Sensor.ColorFrameReady += new EventHandler<ColorImageFrameReadyEventArgs>(sensor_ColorFrameReady);
-
-            Sensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
-
             Sensor.SkeletonStream.Enable();
-            Sensor.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(sensor_SkeletonFrameReady);
-
-            //sensor.ElevationAngle = 10;
+            Sensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    Sensor.ColorFrameReady += new EventHandler<ColorImageFrameReadyEventArgs>(sensor_ColorFrameReady);
+                    Sensor.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(sensor_SkeletonFrameReady);
+                }
+                ));
 
             Busy = false;
         }
 
-        void sensor_ColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)
+        public void sensor_ColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)
         {
             using (var image = e.OpenColorImageFrame())
             {
@@ -114,7 +119,7 @@ namespace ArmDuino_Base.Model
             }
         }
 
-        void sensor_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
+        public void sensor_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
             using (var skeletonFrame = e.OpenSkeletonFrame())
             {
@@ -161,7 +166,7 @@ namespace ArmDuino_Base.Model
             double jointY = (double)(skeleton.Joints[joint.JointType].Position.Y);
             double leftRefToJoint = Math.Sqrt(Math.Pow(jointX - leftRefX, 2) + Math.Pow(jointY - leftRefY, 2));
             double rightRefToJoint = Math.Sqrt(Math.Pow(jointX - rightRefX, 2) + Math.Pow(jointY - rightRefY, 2));
-            double angle = Math.Acos(((Math.Pow(refDistance, 2) + Math.Pow(rightRefToJoint, 2) - Math.Pow(leftRefToJoint, 2))/(2*refDistance*rightRefToJoint)));
+            double angle = Math.Acos(((Math.Pow(refDistance, 2) + Math.Pow(rightRefToJoint, 2) - Math.Pow(leftRefToJoint, 2)) / (2 * refDistance * rightRefToJoint)));
             angle = (angle * 360) / (2 * Math.PI);
             angle -= 90;
             if (jointY > rightRefY)

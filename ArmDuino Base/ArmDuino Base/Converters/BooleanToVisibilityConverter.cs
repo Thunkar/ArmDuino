@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 
-namespace BoatTelemetry.Converters
+namespace ArmDuino_Base.Converters
 {
     class BooleanToVisibilityConverter : IValueConverter
     {

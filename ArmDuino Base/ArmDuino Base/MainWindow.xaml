@@ -11,47 +11,50 @@
     </Window.Resources>
     <Grid Background="Black" DataContext="{StaticResource MainViewModel}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="640"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="140"/>
-            <RowDefinition Height="480"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="0.4*"/>
         </Grid.RowDefinitions>
-        <Slider x:Name="BaseSlider" Maximum="180" Value="{Binding Arm.BaseAng, Mode=TwoWay}"  Width="500" VerticalAlignment="Bottom" Margin="0,0,0,40" Orientation="Horizontal" Grid.ColumnSpan="3" HorizontalAlignment="Center" Grid.Row="3"/>
-        <TextBlock Text="Base" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10" FontSize="32" Foreground="White" Grid.Column="1" />
-        <Slider x:Name="Horizontal1Slider" Maximum="180" Value="{Binding Arm.Horizontal1Ang, Mode=TwoWay}"  Height="300" VerticalAlignment="Bottom" Orientation="Vertical"  HorizontalAlignment="Center" Grid.Row="1"/>
-        <Slider x:Name="Vertical1Slider" Maximum="180" Value="{Binding Arm.Vertical1Ang, Mode=TwoWay}"  HorizontalAlignment="Left" Height="300" VerticalAlignment="Bottom" Orientation="Vertical" Grid.Row="1" Margin="30,0,0,0"/>
-        <TextBlock Text="First Segment" TextWrapping="Wrap" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="30" FontSize="32" Foreground="White" Grid.Column="0" />
-        <Slider x:Name="Horizontal2Slider" Maximum="180" Value="{Binding Arm.Horizontal2Ang, Mode=TwoWay}"  Height="300" VerticalAlignment="Bottom" Orientation="Vertical"  HorizontalAlignment="Center" Grid.Row="1" Grid.Column="1"/>
-        <Slider x:Name="Vertical2Slider" Maximum="180" Value="{Binding Arm.Vertical2Ang, Mode=TwoWay}"  HorizontalAlignment="Left" Height="300" VerticalAlignment="Bottom" Orientation="Vertical" Grid.Row="1" Margin="30,0,0,0" Grid.Column="1"/>
-        <TextBlock Text="Second Segment" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Margin="30" FontSize="32" Foreground="White" Grid.Column="1" />
-        <Slider x:Name="Horizontal3Slider" Maximum="180" Value="{Binding Arm.Horizontal3Ang, Mode=TwoWay}"  Height="300" VerticalAlignment="Bottom" Orientation="Vertical"  HorizontalAlignment="Center" Grid.Row="1" Grid.Column="2"/>
-        <Slider x:Name="Pinza2Slider" Maximum="180" Value="{Binding Arm.Pinza, Mode=TwoWay}"  HorizontalAlignment="Left" Height="300" VerticalAlignment="Bottom" Orientation="Vertical" Grid.Row="1" Margin="30,0,0,0" Grid.Column="2"/>
-        <TextBlock Text="Third Segment" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Margin="30" FontSize="32" Foreground="White" Grid.Column="2" />
+        <Slider x:Name="BaseSlider" Maximum="180" Value="{Binding Arm.BaseAng, Mode=TwoWay}"  Width="500" VerticalAlignment="Center" Margin="0,0,0,40" Orientation="Horizontal" Grid.ColumnSpan="3" HorizontalAlignment="Center" Grid.Row="4"/>
+        <TextBlock Text="Base" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10" FontSize="30" Foreground="White" Grid.Column="1" />
+        <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
+            <Slider x:Name="Horizontal1Slider" Margin="20" Maximum="180" Value="{Binding Arm.Horizontal1Ang, Mode=TwoWay}"  Height="300" Orientation="Vertical" />
+            <Slider x:Name="Vertical1Slider" Margin="20" Maximum="180" Value="{Binding Arm.Vertical1Ang, Mode=TwoWay}" Height="300" Orientation="Vertical"/>
+        </StackPanel>
+        <TextBlock Text="First Segment" TextWrapping="Wrap" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10" FontSize="30" Foreground="White" Grid.Column="0" />
+        <StackPanel Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
+            <Slider x:Name="Horizontal2Slider" Maximum="180" Value="{Binding Arm.Horizontal2Ang, Mode=TwoWay}"  Height="300" Orientation="Vertical" Margin="20"/>
+            <Slider x:Name="Vertical2Slider" Maximum="180" Value="{Binding Arm.Vertical2Ang, Mode=TwoWay}"  Height="300" Orientation="Vertical" Margin="20"/>
+        </StackPanel>
+        <TextBlock Text="Second Segment" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Margin="10" FontSize="30" Foreground="White" Grid.Column="1" />
+        <StackPanel Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
+            <Slider x:Name="Horizontal3Slider" Maximum="180" Value="{Binding Arm.Horizontal3Ang, Mode=TwoWay}"  Height="300" Orientation="Vertical" Margin="20" />
+            <Slider x:Name="Pinza2Slider" Maximum="180" Value="{Binding Arm.Pinza, Mode=TwoWay}"  Height="300" Orientation="Vertical" Margin="20"/>
+        </StackPanel>
+        <TextBlock Text="Third Segment" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Margin="10" FontSize="30" Foreground="White" Grid.Column="2" />
         <TextBlock Text="ArmDuino Base" Grid.ColumnSpan="3" FontSize="72" Margin="30" Foreground="White"/>
-        <Grid Grid.Column="3" >
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Button Grid.Column="2" Background="White" BorderBrush="Gray" BorderThickness="3" x:Name="StartKinectButton" FontSize="24" Margin="30" Click="StartKinectButton_Click">
-                <TextBlock Text="Start Kinect" FontWeight="SemiBold" TextWrapping="Wrap"/>
+        <StackPanel Grid.Column="3" ClipToBounds="False" Orientation="Horizontal">
+            <Button Background="White" BorderBrush="Gray" BorderThickness="3" x:Name="StartKinectButton" FontSize="24" Margin="30" Click="StartKinectButton_Click">
+                <TextBlock Margin="5" Text="Start Kinect" FontWeight="SemiBold" TextWrapping="Wrap"/>
             </Button>
-            <Button x:Name="StartSpeechRecog" BorderBrush="Gray" BorderThickness="3" Background="White" Grid.Column="1" FontSize="24" Margin="30" Click="StartSpeechRecog_Click">
-                <TextBlock FontWeight="SemiBold" Text="Voice Recognition" TextWrapping="Wrap" TextAlignment="Center"/>
+            <Button x:Name="StartSpeechRecog" BorderBrush="Gray" BorderThickness="3" Background="White" FontSize="24" Margin="30" Click="StartSpeechRecog_Click">
+                <TextBlock Margin="5" FontWeight="SemiBold" Text="Voice Recognition" TextWrapping="Wrap" TextAlignment="Center"/>
             </Button>
             <Button Background="White" x:Name="Connect" BorderBrush="Gray" BorderThickness="3" FontSize="24" Margin="30" Click="Connect_Click">
-                <TextBlock Text="Connect" FontWeight="SemiBold"  TextAlignment="Center"/>
+                <TextBlock x:Name="ConnectText" Margin="5" FontWeight="SemiBold" TextWrapping="Wrap" TextAlignment="Center"/>
             </Button>
-        </Grid>
-        <ProgressBar Name="KinectBusy" Visibility="Visible" Height="20" IsIndeterminate="{Binding KinectHandler.Busy}"  Grid.Column="3" Grid.Row="1"/>
-        <Image Name="videoImage" Grid.Column="3" Grid.Row="1" Width="Auto" Height="Auto" Source="{Binding KinectHandler.ImageFromKinect}"/>
-        <Canvas Grid.Column="3" Grid.Row="1" Background="Transparent">
+        </StackPanel>
+        <ProgressBar Name="KinectBusy" Visibility="{Binding KinectHandler.Busy, Converter={StaticResource BoolToVisibility}}" Height="20" IsIndeterminate="{Binding KinectHandler.Busy}"  Grid.Column="3" Grid.Row="1"/>
+        <Image Name="videoImage" Grid.Column="3" Grid.Row="1" Grid.RowSpan="3" Width="Auto" Height="Auto" Source="{Binding KinectHandler.ImageFromKinect}"/>
+        <Canvas  Width="640" Height="480" Grid.Column="3" Grid.Row="1" Grid.RowSpan="3" Background="Transparent">
             <Ellipse Fill="Red"
                          Height="10"
                          Width="10"

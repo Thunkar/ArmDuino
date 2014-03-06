@@ -21,6 +21,7 @@ namespace ArmDuino_Base.ViewModel
         public SpokenCommand Navidades { get; set; }
         public SpokenCommand ParalaMusica { get; set; }
         public SpokenCommand Cumpleaños { get; set; }
+
         public MainViewModel()
         {
             Current = this;

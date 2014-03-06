@@ -110,7 +110,7 @@ public class COMHandler implements SerialPortEventListener{
 
 	public String dataToString()
 	{
-		String result = "";
+		String result = "200";
 		for (int i = 0; i < currentArm.getCurrentAngles().length; i++)
 		{
 			if (currentArm.getCurrentAngles()[i] < 10)
@@ -129,7 +129,7 @@ public class COMHandler implements SerialPortEventListener{
 	public byte[] dataToBytes()
 	{
 		char[] result = dataToString().toCharArray();
-		byte[] buffer = new byte[21];
+		byte[] buffer = new byte[24];
 		for (int i = 0; i < result.length; i++)
 		{
 			buffer[i] = (byte)Integer.parseInt(""+result[i]);

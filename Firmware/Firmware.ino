@@ -13,12 +13,13 @@ int targets[] = {90,90,90,90,90,90,90};
 boolean movementStatus[] = {true, true, true, true, true, true, true};
 long stepTimer[7];
 long lastSteps[7];
-long movementPeriod = 500000;
-int data[7];
-char dataBytes[21];
+long movementPeriod = 300000;
+int data[8];
+char dataBytes[24];
+boolean iAmConnected = false;
+boolean iWasConnected = false;
 
 #define DEBUG
-
 
 void setFlagsToFalse() {
   for(int i = 0; i < 7; i++){
@@ -27,13 +28,13 @@ void setFlagsToFalse() {
 }
 
 void setTargets(int data[]){
-  targets[0] = data[0];
-  targets[1] = data[1];
-  targets[2] = data[2];
-  targets[3] = 180- data[3];
-  targets[4] = data[4];
-  targets[5] = data[5];
-  targets[6] = data[6];
+  targets[0] = data[1];
+  targets[1] = data[2];
+  targets[2] = data[3];
+  targets[3] = 180- data[4];
+  targets[4] = data[5];
+  targets[5] = data[6];
+  targets[6] = data[7];
   for(int i = 0; i < 7; i++){
     int difference = abs(positions[i]-targets[i]);
     if(difference == 0){
@@ -73,97 +74,127 @@ void moveSegments(){
     }
 }
 
-void dataStringFormatter(String dataString){
-  int counter = 0;
-  for(int i = 0; i < 21; i = i+3){
-    char data1 = dataString.charAt(i);
-    char data2 = dataString.charAt(i+1);
-    char data3 = dataString.charAt(i+2);
-    String datast1(data1);
-    String datast2(data2);
-    String datast3(data3);
-    String datast = datast1+datast2+datast3;
-    data[counter] = datast.toInt();
-    counter++;
-  }
-}
-
 
 boolean sameTargets(int data[]){
   return
-  targets[0] == data[0] &
-  targets[1] == data[1] &
-  targets[2] == data[2] &
-  targets[3] == 180- data[3] &
-  targets[4] == data[4] &
-  targets[5] == data[5] &
-  targets[6] == data[6];
+  targets[0] == data[1] &
+  targets[1] == data[2] &
+  targets[2] == data[3] &
+  targets[3] == 180- data[4] &
+  targets[4] == data[5] &
+  targets[5] == data[6] &
+  targets[6] == data[7];
 }
 
 void dataBytesFormatter(char dataBytes[]){
   int counter = 0;
-  for(int i = 0; i < 21; i=i+3){
+  for(int i = 0; i < 24; i=i+3){
     data[counter] = dataBytes[i]*100 + dataBytes[i+1]*10 + dataBytes[i+2];
     counter++;
   }
 }
 
-boolean initialize(char initBytes[]){
-  int condition = 7777;
-  int data = initBytes[0]*1000 + initBytes[1]*100 + initBytes[2]*10 + initBytes[3];
-  if(condition == data) return true;
-  else return false;
+void reset()
+{
+    for(int i = 0; i < 7; i++)
+    {
+      positions[i] = 90;
+      targets[i] = 90;
+    }
+    digitalWrite(13, LOW);
+    pinza.write(170);
+    delay(500);
+    base.write(90);
+    delay(500);
+    vertical1.write(90);
+    delay(500);
+    vertical2.write(90);
+    delay(500);
+    horizontal1.write(90);
+    delay(500);
+    horizontal2.write(90);
+    delay(500);
+    horizontal3.write(90);
+    digitalWrite(13, HIGH);
 }
+
 
 
 void setup(){
-  pinMode(13, OUTPUT);
-  pinza.attach(8);
-  pinza.write(170);
-  delay(500);
-  base.attach(2);
-  delay(500);
-  vertical1.attach(4);
-  delay(500);
-  vertical2.attach(6);
-  delay(500);
-  horizontal1.attach(3);
-  delay(500);
-  horizontal2.attach(5);
-  delay(500);
-  horizontal3.attach(7);
-  Serial.begin(115200);
-  char initBytes[4];
-  digitalWrite(13, HIGH);
-  while(!initialize(initBytes)){
-    if(Serial.available()>3){
-      Serial.readBytes(initBytes, 4);
-    }
-  Serial.flush();
-  }
- Serial.println("Connected");
- delay(1000);
- digitalWrite(13, LOW);
+    pinMode(13, OUTPUT);
+    digitalWrite(13, LOW);
+    pinza.attach(8);
+    pinza.write(170);
+    delay(500);
+    base.attach(2);
+    delay(500);
+    vertical1.attach(4);
+    delay(500);
+    vertical2.attach(6);
+    delay(500);
+    horizontal1.attach(3);
+    delay(500);
+    horizontal2.attach(5);
+    delay(500);
+    horizontal3.attach(7);
+    Serial.begin(115200);
+    digitalWrite(13, HIGH);
 }
 
 
+void processData()
+{
+  byte initCode = data[0];
+  switch(initCode)
+  {
+    case 200: 
+    {
+       digitalWrite(13, LOW);
+       iWasConnected = true;
+       moveStuff();
+       break;
+    }
+    case 201: 
+    {
+      if(iWasConnected)
+      {
+        reset();
+      }
+      iWasConnected = false;
+      break;
+    }
+  }
+}
 
-void loop() {
-  if(Serial.available()>20){
-    byte nbytes = Serial.readBytes(dataBytes,21);
+void readData()
+{
+  if(Serial.available()>23)
+  {
+    byte nbytes = Serial.readBytes(dataBytes,24);
     dataBytesFormatter(dataBytes);
     #ifdef DEBUG
     Serial.print(nbytes);
     Serial.println(" bytes read");
-    for(int i = 0; i < 7; i++){
+    for(int i = 0; i < 8; i++)
+    {
       Serial.println(data[i]);
     }
     #endif
     Serial.flush();
   }
+}
+
+void moveStuff()
+{
   if(!sameTargets(data))
   {
       setTargets(data);
   }
   moveSegments();
+}
+
+void loop() 
+{
+  readData();
+  processData();
 }

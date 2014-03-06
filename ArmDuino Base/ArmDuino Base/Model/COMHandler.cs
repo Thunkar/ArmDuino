@@ -23,20 +23,12 @@ namespace ArmDuino_Base.Model
         {
             string[] portnames = SerialPort.GetPortNames();
 
-            while (portnames.Length == 0)
+            if(portnames.Length == 0)
             {
-                MessageBoxResult error = MessageBox.Show("No COM Port found", "Le Fail", MessageBoxButton.OKCancel, MessageBoxImage.Error);
-                if (error == MessageBoxResult.OK)
-                {
-                    portnames = SerialPort.GetPortNames();
-                }
-                else
-                {
-                    Application.Current.Shutdown();
-                    throw new Exception("PUM");
-                }
+                MessageBoxResult error = MessageBox.Show("No COM Port found", "Le Fail", MessageBoxButton.OK, MessageBoxImage.Error);
+                this.isConnected = false;
+                if (error == MessageBoxResult.OK) return;
             }
-
             Port = new SerialPort(portnames[0], 115200);
             while (!Port.IsOpen)
             {
@@ -46,25 +38,20 @@ namespace ArmDuino_Base.Model
                 }
                 catch (Exception)
                 {
-                    MessageBoxResult error = MessageBox.Show("No COM Port found", "Le Fail", MessageBoxButton.OKCancel, MessageBoxImage.Error);
-                    if (error == MessageBoxResult.OK)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        Application.Current.Shutdown();
-                        throw new Exception("PUM");
-                    }
+                    MessageBoxResult error = MessageBox.Show("Can't open serial port", "Le Fail", MessageBoxButton.OK, MessageBoxImage.Error);
+                    this.isConnected = false;
+                    if (error == MessageBoxResult.OK) return;
                 }
             }
+            this.isConnected = true;
         }
+
 
 
 
         public String dataToString(Arm currentArm)
         {
-            String result = "";
+            String result = "200";
             for (int i = 0; i < currentArm.CurrentAngles.Length; i++)
             {
                 if (currentArm.CurrentAngles[i] < 10)
@@ -83,7 +70,7 @@ namespace ArmDuino_Base.Model
         public byte[] dataToBytes(Arm currentArm)
         {
             char[] result = dataToString(currentArm).ToCharArray();
-            byte[] buffer = new byte[21];
+            byte[] buffer = new byte[24];
             for (int i = 0; i < result.Length; i++)
             {
                 buffer[i] = (byte)Int32.Parse(""+result[i]);
@@ -96,7 +83,12 @@ namespace ArmDuino_Base.Model
             try
             {
                 byte[] buffer = dataToBytes(currentArm);
-                Port.Write(buffer, 0, buffer.Length);
+                //for (int i = 0; i < buffer.Length; i++)
+                //{
+                //    System.Diagnostics.Debug.Write(buffer[i]);
+                //}
+                //System.Diagnostics.Debug.WriteLine("");
+                    Port.Write(buffer, 0, buffer.Length);
             }
             catch(Exception e)
             {

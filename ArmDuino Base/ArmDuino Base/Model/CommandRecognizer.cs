@@ -11,7 +11,7 @@ namespace ArmDuino_Base.Model
     class CommandRecognizer : SpeechRecognitionEngine
     {
         public Dictionary<String, SpokenCommand> Commands;
-        private string p;
+ 
 
 
         public CommandRecognizer()
@@ -19,9 +19,6 @@ namespace ArmDuino_Base.Model
             Commands = new Dictionary<String, SpokenCommand>();
         }
 
-        public CommandRecognizer(string p) : base(p)
-        {
-        }
 
         public void loadCommand(String command, SpokenCommand armcommand)
         {

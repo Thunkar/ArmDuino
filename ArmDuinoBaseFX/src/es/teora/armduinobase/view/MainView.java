@@ -34,7 +34,7 @@ public class MainView extends Application {
 	public Button Connect;
 	public GridPane MainGrid;
 	public static MainController MainController;
-	public Timer timer = new Timer();
+	public Timer timer;
 	public boolean connected = false;
 	
 	@Override
@@ -79,19 +79,40 @@ public class MainView extends Application {
 		MainGrid.add(Connect, 0, 2);
 		Connect.setText("Connect");
 		Connect.setOnAction(new EventHandler<ActionEvent>() {
-			   @Override public void handle(ActionEvent e) {
-				   byte[] init = { 7, 7, 7, 7 };
-		            try {
-						MainController.COMHandler.getOutput().write(init, 0, 4);
-						MainController.COMHandler.currentArm.updateAngles();
-						MainController.COMHandler.writeDataBytes();
-						connected = true;
-						startSending();
+			@Override public void handle(ActionEvent e) {
+				if(!connected)
+				{
+					MainController.COMHandler.Initialize();
+					MainController.COMHandler.currentArm.updateAngles();
+					MainController.COMHandler.writeDataBytes();
+					connected = true;
+					startSending();
+					Connect.setText("Disconnect");
+				}
+				else 
+				{
+					timer.cancel();
+	                connected = false;
+	                MainController.CurrentArm.setCurrentAngles(new int[] {90,90,90,90,90,90,170});
+	                MainController.CurrentArm.setAngles();
+	                byte[] init = { 2, 0, 1, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 1, 7, 0 };
+	                try {
+						MainController.COMHandler.getOutput().write(init, 0, 24);
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
-			   }
-			});
+	                MainController.COMHandler.close();
+	                BaseSlider.valueProperty().set(90);
+	                Horizontal1Slider.valueProperty().set(90);
+	                Horizontal2Slider.valueProperty().set(90);
+	                Horizontal3Slider.valueProperty().set(90);
+	                Vertical1Slider.valueProperty().set(90);
+	                Vertical2Slider.valueProperty().set(90);
+	                GripSlider.valueProperty().set(170);
+	                Connect.setText("Connect");
+				}
+			}
+		});
 		BaseSlider = new Slider();
 		BaseSlider.minProperty().set(0);
 		BaseSlider.maxProperty().set(180);
@@ -188,7 +209,8 @@ public class MainView extends Application {
 	
 	public void startSending()
 	{
-		if(connected){
+		timer = new Timer();
+
 			timer.schedule((new TimerTask() {
 				  @Override
 				  public void run() 
@@ -196,8 +218,7 @@ public class MainView extends Application {
 					  MainController.COMHandler.currentArm.updateAngles();
 					  MainController.COMHandler.writeDataBytes();  
 				  }
-				}), 0, 100);
-		}
+			}), 0, 100);
 	}
 	
 	public static void main(String[] args) 

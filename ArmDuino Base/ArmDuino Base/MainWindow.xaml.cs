@@ -20,6 +20,7 @@ using System.Speech.Recognition;
 using System.Speech.Synthesis;
 using Microsoft.Kinect;
 using System.Speech.AudioFormat;
+using System.Threading;
 
 
 namespace ArmDuino_Base
@@ -38,6 +39,7 @@ namespace ArmDuino_Base
 
 
 
+
         public MainWindow()
         {
             InitializeComponent();
@@ -45,12 +47,24 @@ namespace ArmDuino_Base
             Timer.Tick += Timer_Tick;
             this.Closed += MainWindow_Closed;
             synth.SetOutputToDefaultAudioDevice();
+            ConnectText.Text = "Connect";
+            CompositionTarget.Rendering += CompositionTarget_Rendering;
         }
+
+
 
         void MainWindow_Closed(object sender, EventArgs e)
         {
-            COMHandler.Port.Close();
-            COMHandler.Port.Dispose();
+            try
+            {
+                COMHandler.Port.Close();
+                COMHandler.Port.Dispose();
+            }
+            catch
+            {
+
+            }
+
         }
 
         public void KinectMapper()
@@ -90,13 +104,12 @@ namespace ArmDuino_Base
             recognizer.loadCommand("Ok llarvis, felicítame por mi cumpleaños", MainViewModel.Current.Cumpleaños);
             recognizer.RequestRecognizerUpdate();
             recognizer.SpeechRecognized += _recognizer_SpeechRecognized;
-            CompositionTarget.Rendering += CompositionTarget_Rendering;
         }
 
         void CompositionTarget_Rendering(object sender, EventArgs e)
         {
             Skeleton currentSkeleton = MainViewModel.Current.KinectHandler.closestSkeleton;
-            if (MainViewModel.Current.KinectHandler.Sensor != null && MainViewModel.Current.KinectHandler.Sensor.SkeletonStream.IsEnabled 
+            if (MainViewModel.Current.KinectHandler.Sensor != null && MainViewModel.Current.KinectHandler.Sensor.SkeletonStream.IsEnabled
                 && currentSkeleton != null)
             {
                 SetEllipsePosition(ellipseHead, currentSkeleton.Joints[JointType.Head], false);
@@ -106,7 +119,7 @@ namespace ArmDuino_Base
                 SetEllipsePosition(ellipseRightWrist, currentSkeleton.Joints[JointType.WristRight], true);
                 SetEllipsePosition(ellipseRightShoulder, currentSkeleton.Joints[JointType.ShoulderRight], true);
                 SetEllipsePosition(ellipseLeftShoulder, currentSkeleton.Joints[JointType.ShoulderLeft], true);
-            } 
+            }
         }
 
 
@@ -124,7 +137,15 @@ namespace ArmDuino_Base
             }
             else
             {
-                recognizer.SetInputToDefaultAudioDevice();
+                try
+                {
+                    recognizer.SetInputToDefaultAudioDevice();
+                }
+                catch
+                {
+                    MessageBoxResult error = MessageBox.Show("No input device found", "Le Fail", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (error == MessageBoxResult.OK) return;
+                }
             }
             recognizer.RecognizeAsync(RecognizeMode.Multiple);
 
@@ -171,8 +192,8 @@ namespace ArmDuino_Base
 
         void Port_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
-            //String data = COMHandler.Port.ReadExisting();
-            //System.Diagnostics.Debug.WriteLine(data);
+            String data = COMHandler.Port.ReadExisting();
+            System.Diagnostics.Debug.WriteLine(data);
             //if (data.Equals("Connected")) Connect.Content = "Connected!";
         }
 
@@ -182,8 +203,8 @@ namespace ArmDuino_Base
         {
             if (isHighlighted)
             {
-                ellipse.Width = 30;
-                ellipse.Height = 30;
+                ellipse.Width = 10;
+                ellipse.Height = 10;
                 ellipse.Fill = activeBrush;
             }
             else
@@ -202,17 +223,33 @@ namespace ArmDuino_Base
 
         private void Connect_Click(object sender, RoutedEventArgs e)
         {
-            MainViewModel.Current.COMHandler.Initialize();
-            COMHandler.Port.DataReceived += Port_DataReceived;
-            byte[] init = { 7, 7, 7, 7 };
-            COMHandler.Port.Write(init, 0, 4);
-            Timer.Start();
+
+            if (!MainViewModel.Current.COMHandler.isConnected)
+            {
+                MainViewModel.Current.COMHandler.Initialize();
+                COMHandler.Port.DataReceived += Port_DataReceived;
+                Timer.Start();
+                ConnectText.Text = "Disconnect";
+            }
+            else
+            {
+                Timer.Stop();
+                MainViewModel.Current.COMHandler.isConnected = false;
+                MainViewModel.Current.Arm.CurrentAngles = new int[] {90,90,90,90,90,90,170};
+                MainViewModel.Current.Arm.setAngles();
+                byte[] init = { 2, 0, 1, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 1, 7, 0 };
+                COMHandler.Port.Write(init, 0, 24);
+                COMHandler.Port.Close();
+                ConnectText.Text = "Connect";
+            }
+
         }
 
         private void StartKinectButton_Click(object sender, RoutedEventArgs e)
         {
             MainViewModel.Current.KinectHandler.initTask.Start();
         }
+
 
         private void StartSpeechRecog_Click(object sender, RoutedEventArgs e)
         {
