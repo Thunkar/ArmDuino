@@ -1,170 +1,45 @@
+//######################################
+/* ArmDuino Firmware v1.0
+/  Gregorio Juliana Quirós
+/  07/03/1014
+*///####################################
+
 #include <Servo.h>
 
+//Servo definitions
 Servo base;
 Servo horizontal1;
 Servo vertical1;
 Servo horizontal2;
 Servo vertical2;
 Servo horizontal3;
-Servo pinza;
-Servo servos[] = {base, horizontal1, vertical1, horizontal2, vertical2, horizontal3, pinza};
-int positions[] = {90,90,90,90,90,90,90};
-int targets[] = {90,90,90,90,90,90,90};
+Servo grip;
+//Servo array
+Servo servos[] = {base, horizontal1, vertical1, horizontal2, vertical2, horizontal3, grip};
+//Instant positions of the servos
+int positions[] = {90,90,90,90,90,90,170};
+//Target position that servos have to reach
+int targets[] = {90,90,90,90,90,90,170};
+//Indicates wether the servos have reached their targets
 boolean movementStatus[] = {true, true, true, true, true, true, true};
+//Store the time each servo has to move a step
 long stepTimer[7];
+//Stores last time a servo performed a step
 long lastSteps[7];
-long movementPeriod = 300000;
+//Global time the arm has to complete the next target
+long movementPeriod = 500000;
+//Incoming data (formatted)
 int data[8];
+//Incoming data (raw)
 char dataBytes[24];
-boolean iAmConnected = false;
+//Boolean to check wether we were connected last loop or not
 boolean iWasConnected = false;
 
 #define DEBUG
 
-void setFlagsToFalse() {
-  for(int i = 0; i < 7; i++){
-    movementStatus[i] = false; 
-  }
-}
-
-void setTargets(int data[]){
-  targets[0] = data[1];
-  targets[1] = data[2];
-  targets[2] = data[3];
-  targets[3] = 180- data[4];
-  targets[4] = data[5];
-  targets[5] = data[6];
-  targets[6] = data[7];
-  for(int i = 0; i < 7; i++){
-    int difference = abs(positions[i]-targets[i]);
-    if(difference == 0){
-      movementStatus[i] = true;
-    }
-    else{
-      movementStatus[i] = false;
-      stepTimer[i] = movementPeriod/difference;
-    }
-  }
-}
-
-boolean isItDoneYet(){
-  return movementStatus[0] & movementStatus[1] & movementStatus[2] & movementStatus[3] & movementStatus[4] & movementStatus[5] & movementStatus[6];
-}
-
-void moveStep(int servo, int target){
-  if(movementStatus[servo] == true) return;
-  if((micros()-lastSteps[servo])>=stepTimer[servo]){
-    if(positions[servo]<target){
-      positions[servo] += 1;
-      servos[servo].write(positions[servo]);
-      lastSteps[servo] = micros();
-    }
-    else{
-      positions[servo] -= 1;
-      servos[servo].write(positions[servo]);
-      lastSteps[servo] = micros();
-    }
-  }
-  if(positions[servo] == target) movementStatus[servo] = true;
-}
-
-void moveSegments(){
-    for(int i = 0; i < 7; i++){
-      moveStep(i, targets[i]);
-    }
-}
-
-
-boolean sameTargets(int data[]){
-  return
-  targets[0] == data[1] &
-  targets[1] == data[2] &
-  targets[2] == data[3] &
-  targets[3] == 180- data[4] &
-  targets[4] == data[5] &
-  targets[5] == data[6] &
-  targets[6] == data[7];
-}
-
-void dataBytesFormatter(char dataBytes[]){
-  int counter = 0;
-  for(int i = 0; i < 24; i=i+3){
-    data[counter] = dataBytes[i]*100 + dataBytes[i+1]*10 + dataBytes[i+2];
-    counter++;
-  }
-}
-
-void reset()
-{
-    for(int i = 0; i < 7; i++)
-    {
-      positions[i] = 90;
-      targets[i] = 90;
-    }
-    digitalWrite(13, LOW);
-    pinza.write(170);
-    delay(500);
-    base.write(90);
-    delay(500);
-    vertical1.write(90);
-    delay(500);
-    vertical2.write(90);
-    delay(500);
-    horizontal1.write(90);
-    delay(500);
-    horizontal2.write(90);
-    delay(500);
-    horizontal3.write(90);
-    digitalWrite(13, HIGH);
-}
-
-
-
-void setup(){
-    pinMode(13, OUTPUT);
-    digitalWrite(13, LOW);
-    pinza.attach(8);
-    pinza.write(170);
-    delay(500);
-    base.attach(2);
-    delay(500);
-    vertical1.attach(4);
-    delay(500);
-    vertical2.attach(6);
-    delay(500);
-    horizontal1.attach(3);
-    delay(500);
-    horizontal2.attach(5);
-    delay(500);
-    horizontal3.attach(7);
-    Serial.begin(115200);
-    digitalWrite(13, HIGH);
-}
-
-
-void processData()
-{
-  byte initCode = data[0];
-  switch(initCode)
-  {
-    case 200: 
-    {
-       digitalWrite(13, LOW);
-       iWasConnected = true;
-       moveStuff();
-       break;
-    }
-    case 201: 
-    {
-      if(iWasConnected)
-      {
-        reset();
-      }
-      iWasConnected = false;
-      break;
-    }
-  }
-}
+/*
+/ Here we read the data from the serial port and store it in the data[] array
+*/
 
 void readData()
 {
@@ -184,6 +59,93 @@ void readData()
   }
 }
 
+/*
+/ Formats the incoming data from the serial port and stores the information into the data[] array.
+*/
+
+void dataBytesFormatter(char dataBytes[]){
+  int counter = 0;
+  for(int i = 0; i < 24; i=i+3){
+    data[counter] = dataBytes[i]*100 + dataBytes[i+1]*10 + dataBytes[i+2];
+    counter++;
+  }
+}
+
+/*
+/ This method takes the data array and sets the target position for each servo. Also, it assigns each servo the time it has to move.
+*/
+void setTargets(int data[]){
+  targets[0] = data[1];
+  targets[1] = data[2];
+  targets[2] = data[3];
+  targets[3] = 180- data[4];
+  targets[4] = data[5];
+  targets[5] = data[6];
+  targets[6] = data[7];
+  for(int i = 0; i < 7; i++)
+  {
+    int difference = abs(positions[i]-targets[i]);
+    if(difference == 0){
+      movementStatus[i] = true;
+    }
+    else{
+      movementStatus[i] = false;
+      stepTimer[i] = movementPeriod/difference;
+    }
+  }
+}
+
+/*
+/ Checks if each servo has to move and moves it. Also, it stores the new position and sets the last time it moved to the present.
+*/
+
+
+void moveStep(int servo, int target){
+  if(movementStatus[servo] == true) return;
+  if((micros()-lastSteps[servo])>=stepTimer[servo]){
+    if(positions[servo]<target){
+      positions[servo] += 1;
+      servos[servo].write(positions[servo]);
+      lastSteps[servo] = micros();
+    }
+    else{
+      positions[servo] -= 1;
+      servos[servo].write(positions[servo]);
+      lastSteps[servo] = micros();
+    }
+  }
+  if(positions[servo] == target) movementStatus[servo] = true;
+}
+
+/*
+/ Loop to move all the servos
+*/
+
+void moveSegments(){
+    for(int i = 0; i < 7; i++){
+      moveStep(i, targets[i]);
+    }
+} 
+
+/*
+/ Checks if the arm is receiving its actual target as data.
+*/
+
+boolean sameTargets(int data[]){
+  return
+  targets[0] == data[1] &
+  targets[1] == data[2] &
+  targets[2] == data[3] &
+  targets[3] == 180- data[4] &
+  targets[4] == data[5] &
+  targets[5] == data[6] &
+  targets[6] == data[7];
+}
+
+/*
+/ This method checks if the data we are going to process is the same that we have and in that case ignores it. If it's different, time to move
+*/
+
 void moveStuff()
 {
   if(!sameTargets(data))
@@ -192,6 +154,104 @@ void moveStuff()
   }
   moveSegments();
 }
+
+/*
+/ Process the incoming data to perform the apropriate actions
+*/
+
+void processData()
+{
+  byte initCode = data[0];
+  switch(initCode)
+  {
+    case 200: // 200 means the incoming data is movement data
+    {
+      if(!iWasConnected) // if we weren't connected, we signal it with the grip
+      {
+        grip.write(90);
+        delay(200);
+        grip.write(170);
+      }
+       digitalWrite(13, LOW);
+       iWasConnected = true;
+       moveStuff();
+       break;
+    }
+    case 201: // 201 means disconnection
+    {
+      if(iWasConnected) // if we were connected, reset the servos
+      {
+        reset();
+      }
+      iWasConnected = false;
+      break;
+    }
+  }
+}
+
+
+/*
+/ Resets the arm to the waiting for connection state
+*/
+
+void reset()
+{
+    digitalWrite(13, HIGH);
+    for(int i = 0; i < 6; i++)
+    {
+      positions[i] = 90;
+      targets[i] = 90;
+    }
+    positions[6] = 170;
+    targets[6] = 170;
+    grip.write(170);
+    delay(500);
+    base.write(90);
+    delay(500);
+    vertical1.write(90);
+    delay(500);
+    vertical2.write(90);
+    delay(500);
+    horizontal1.write(90);
+    delay(500);
+    horizontal2.write(90);
+    delay(500);
+    horizontal3.write(90);
+    delay(300);
+    // Grip signal to indicate we are ready to receive stuff
+    grip.write(90);
+    delay(200);
+    grip.write(170);
+}
+
+
+/*
+/ Servo attachment and serial port initialization
+*/
+void setup(){
+    pinMode(13, OUTPUT);
+    digitalWrite(13, HIGH); //LED on means the arm is not connected
+    grip.attach(6);
+    grip.write(170);
+    delay(500);
+    base.attach(7);
+    delay(500);
+    vertical1.attach(5);
+    delay(500);
+    vertical2.attach(9);
+    delay(500);
+    horizontal1.attach(12);
+    delay(500);
+    horizontal2.attach(10);
+    delay(500);
+    horizontal3.attach(8);
+    delay(300);
+    grip.write(90);
+    delay(200);
+    grip.write(170);
+    Serial.begin(115200);
+}
+
 
 void loop() 
 {

@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 
 
@@ -67,7 +68,6 @@ namespace ArmDuino_Base.Model
                     Busy = false;
                     return;
                 }
-
             }
 
             Sensor.Start();
@@ -189,8 +189,8 @@ namespace ArmDuino_Base.Model
             double jointY = (double)(skeleton.Joints[joint.JointType].Position.Y);
             double leftRefToJoint = Math.Sqrt(Math.Pow(jointX - leftRefX, 2) + Math.Pow(jointY - leftRefY, 2));
             double rightRefToJoint = Math.Sqrt(Math.Pow(jointX - rightRefX, 2) + Math.Pow(jointY - rightRefY, 2));
-            double angle = Math.Acos(((Math.Pow(leftRefToJoint, 2) + Math.Pow(refDistance, 2) - Math.Pow(rightRefToJoint, 2)) / (2 * leftRefToJoint * refDistance)));
-            angle = (angle * 360) / (2 * Math.PI);
+            double angle = Math.Acos(((Math.Pow(leftRefToJoint, 2) + Math.Pow(refDistance, 2) - Math.Pow(rightRefToJoint, 2)) / (2f * leftRefToJoint * refDistance)));
+            angle = (angle * 360f) / (2f * Math.PI);
             angle -= 90;
             if (jointY > rightRefY)
             {
@@ -199,6 +199,23 @@ namespace ArmDuino_Base.Model
             if (angle < 0) angle = -angle;
             if (angle > 180) angle = 180;
             return angle;
+        }
+
+        public double computeRotation(Skeleton skeleton)
+        {
+            Vector4 handRotation = skeleton.BoneOrientations[JointType.HandLeft].HierarchicalRotation.Quaternion;
+            Vector4 wristRotation = skeleton.BoneOrientations[JointType.WristLeft].HierarchicalRotation.Quaternion;
+            Vector4 elbowRotation = skeleton.BoneOrientations[JointType.ElbowLeft].HierarchicalRotation.Quaternion;
+            Quaternion handQRotation = new Quaternion(handRotation.X, handRotation.Y, handRotation.Z, handRotation.W);
+            Quaternion wristQRotation = new Quaternion(wristRotation.X, wristRotation.Y, wristRotation.Z, wristRotation.W);
+            Quaternion elbowQRotation = new Quaternion(elbowRotation.X, elbowRotation.Y, elbowRotation.Z, elbowRotation.W);
+            Quaternion totalRotation = Quaternion.Multiply(handQRotation, wristQRotation);
+            totalRotation = Quaternion.Multiply(totalRotation, elbowQRotation);
+            totalRotation.Normalize();
+            double handAngle = totalRotation.Angle;
+            if(handAngle < 0) return 0;
+            if(handAngle > 180) return 180;
+            return handAngle;
         }
 
 

@@ -49,6 +49,7 @@ public class MainView extends Application {
 			Scene scene = new Scene(MainGrid, 500,500);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			setSliders();
+			setConnectionSystem();
 			Label Title = new Label("ArmDuino Base");
 			Title.setAlignment(Pos.TOP_LEFT);
 			MainGrid.add(Title, 0, 0);
@@ -57,7 +58,16 @@ public class MainView extends Application {
 			    public void handle(WindowEvent event) {
 			        try {
 			        	timer.cancel();
-			        	MainController.COMHandler.close();
+		                connected = false;
+		                MainController.CurrentArm.setCurrentAngles(new int[] {90,90,90,90,90,90,170});
+		                MainController.CurrentArm.setAngles();
+		                byte[] init = { 2, 0, 1, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 1, 7, 0 };
+		                try {
+							MainController.COMHandler.getOutput().write(init, 0, 24);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+		                MainController.COMHandler.close();
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -71,9 +81,7 @@ public class MainView extends Application {
 		}
 	}
 	
-	
-	
-	public void setSliders()
+	public void setConnectionSystem() 
 	{
 		Connect = new Button();
 		MainGrid.add(Connect, 0, 2);
@@ -83,8 +91,6 @@ public class MainView extends Application {
 				if(!connected)
 				{
 					MainController.COMHandler.Initialize();
-					MainController.COMHandler.currentArm.updateAngles();
-					MainController.COMHandler.writeDataBytes();
 					connected = true;
 					startSending();
 					Connect.setText("Disconnect");
@@ -113,6 +119,12 @@ public class MainView extends Application {
 				}
 			}
 		});
+	}
+	
+	
+	
+	public void setSliders()
+	{
 		BaseSlider = new Slider();
 		BaseSlider.minProperty().set(0);
 		BaseSlider.maxProperty().set(180);

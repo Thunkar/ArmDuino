@@ -100,8 +100,10 @@ public class COMHandler implements SerialPortEventListener{
 	 * This should be called when you stop using the port.
 	 * This will prevent port locking on platforms like Linux.
 	 */
-	public synchronized void close() {
-		if (getPort() != null) {
+	public synchronized void close() 
+	{
+		if (getPort() != null) 
+		{
 			getPort().removeEventListener();
 			getPort().close();
 		}
@@ -143,7 +145,6 @@ public class COMHandler implements SerialPortEventListener{
 		{
 			byte[] buffer = dataToBytes();
 			output.write(buffer, 0, buffer.length);
-			System.out.println(buffer);
 		}
 		catch(Exception e)
 		{

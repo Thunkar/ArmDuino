@@ -57,6 +57,12 @@ namespace ArmDuino_Base
         {
             try
             {
+                Timer.Stop();
+                MainViewModel.Current.COMHandler.isConnected = false;
+                MainViewModel.Current.Arm.CurrentAngles = new int[] { 90, 90, 90, 90, 90, 90, 170 };
+                MainViewModel.Current.Arm.setAngles();
+                byte[] stop = { 2, 0, 1, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 1, 7, 0 };
+                COMHandler.Port.Write(stop, 0, 24);
                 COMHandler.Port.Close();
                 COMHandler.Port.Dispose();
             }
@@ -81,6 +87,7 @@ namespace ArmDuino_Base
                 MainViewModel.Current.Arm.Horizontal2Ang = (int)horizontal2angle;
                 MainViewModel.Current.Arm.Horizontal3Ang = (int)horizontal3angle;
                 MainViewModel.Current.Arm.Pinza = (int)pinzaAngle;
+                MainViewModel.Current.Arm.BaseAng = (int)MainViewModel.Current.KinectHandler.computeRotation(currentSkeleton);
             }
         }
 
@@ -226,6 +233,8 @@ namespace ArmDuino_Base
 
             if (!MainViewModel.Current.COMHandler.isConnected)
             {
+                MainViewModel.Current.Arm.CurrentAngles = new int[] { 90, 90, 90, 90, 90, 90, 170 };
+                MainViewModel.Current.Arm.setAngles();
                 MainViewModel.Current.COMHandler.Initialize();
                 COMHandler.Port.DataReceived += Port_DataReceived;
                 Timer.Start();
@@ -237,8 +246,8 @@ namespace ArmDuino_Base
                 MainViewModel.Current.COMHandler.isConnected = false;
                 MainViewModel.Current.Arm.CurrentAngles = new int[] {90,90,90,90,90,90,170};
                 MainViewModel.Current.Arm.setAngles();
-                byte[] init = { 2, 0, 1, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 1, 7, 0 };
-                COMHandler.Port.Write(init, 0, 24);
+                byte[] stop = { 2, 0, 1, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 1, 7, 0 };
+                COMHandler.Port.Write(stop, 0, 24);
                 COMHandler.Port.Close();
                 ConnectText.Text = "Connect";
             }
