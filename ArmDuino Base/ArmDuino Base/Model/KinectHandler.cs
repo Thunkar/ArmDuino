@@ -1,4 +1,5 @@
 ﻿using Microsoft.Kinect;
+using Microsoft.Kinect.Toolkit.Interaction;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -49,6 +50,34 @@ namespace ArmDuino_Base.Model
                 NotifyPropertyChanged("Busy");
             }
         }
+        private int tilt;
+        public int Tilt
+        {
+            get
+            {
+                return Sensor.ElevationAngle;
+            }
+            set
+            {
+                Sensor.ElevationAngle = value;
+                NotifyPropertyChanged("Tilt");
+            }
+        }
+        public InteractionStream interactionStream;
+        private bool grip;
+        public bool Grip
+        {
+            get
+            {
+                return grip;
+            }
+            set
+            {
+                grip = value;
+                NotifyPropertyChanged("Grip");
+            }
+        }
+        private UserInfo[] userInfos;
 
         public KinectHandler()
         {
@@ -73,16 +102,101 @@ namespace ArmDuino_Base.Model
             Sensor.Start();
             Sensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
             Sensor.SkeletonStream.Enable();
-            Sensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
+            Sensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
+
             Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
                     Sensor.ColorFrameReady += new EventHandler<ColorImageFrameReadyEventArgs>(sensor_ColorFrameReady);
                     Sensor.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(sensor_SkeletonFrameReady);
+                    Sensor.DepthFrameReady += Sensor_DepthFrameReady;
+                    this.interactionStream = new InteractionStream(Sensor, new DummyInteractionClient());
+                    this.interactionStream.InteractionFrameReady += interactionStream_InteractionFrameReady;
                 }
                 ));
-
             Busy = false;
         }
+
+        void Sensor_DepthFrameReady(object sender, DepthImageFrameReadyEventArgs e)
+        {
+            using (DepthImageFrame depthFrame = e.OpenDepthImageFrame())
+            {
+                if (depthFrame == null)
+                    return;
+                interactionStream.ProcessDepth(depthFrame.GetRawPixelData(), depthFrame.Timestamp);
+            }
+        }
+
+        void interactionStream_InteractionFrameReady(object sender, InteractionFrameReadyEventArgs e)
+        {
+            using (InteractionFrame frame = e.OpenInteractionFrame())
+            {
+                if (frame != null)
+                {
+                    if (this.userInfos == null)
+                    {
+                        this.userInfos = new UserInfo[InteractionFrame.UserInfoArrayLength];
+                    }
+
+                    frame.CopyInteractionDataTo(this.userInfos);
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+
+
+            foreach (UserInfo userInfo in this.userInfos)
+            {
+                foreach (InteractionHandPointer handPointer in userInfo.HandPointers)
+                {
+                    string action = null;
+
+                    switch (handPointer.HandEventType)
+                    {
+                        case InteractionHandEventType.Grip:
+                            action = "gripped";
+                            break;
+
+                        case InteractionHandEventType.GripRelease:
+                            action = "released";
+
+                            break;
+                    }
+
+                    if (action != null)
+                    {
+                        string handSide = "unknown";
+
+                        switch (handPointer.HandType)
+                        {
+                            case InteractionHandType.Left:
+                                handSide = "left";
+                                break;
+
+                            case InteractionHandType.Right:
+                                handSide = "right";
+                                break;
+                        }
+
+                        if (handSide == "left")
+                        {
+                            if (action == "released")
+                            {
+                                Grip = false;
+                            }
+                            else Grip = true;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
 
         public void sensor_ColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)
         {
@@ -90,7 +204,6 @@ namespace ArmDuino_Base.Model
             {
                 if (image == null)
                     return;
-
                 if (colorBytes == null || colorBytes.Length != image.PixelDataLength)
                 {
                     colorBytes = new byte[image.PixelDataLength];
@@ -125,13 +238,16 @@ namespace ArmDuino_Base.Model
             {
                 if (skeletonFrame == null)
                     return;
-
                 if (skeletons == null || skeletons.Length != skeletonFrame.SkeletonArrayLength)
                 {
                     skeletons = new Skeleton[skeletonFrame.SkeletonArrayLength];
                 }
 
                 skeletonFrame.CopySkeletonDataTo(skeletons);
+
+                interactionStream.ProcessSkeleton(skeletons, Sensor.AccelerometerGetCurrentReading(), skeletonFrame.Timestamp);
+
+
             }
 
             this.closestSkeleton = skeletons.Where(s => s.TrackingState == SkeletonTrackingState.Tracked)
@@ -178,6 +294,17 @@ namespace ArmDuino_Base.Model
             return angle;
         }
 
+        public int GetVerticalAngle(Skeleton skeleton)
+        {
+            float shoulderZ = skeleton.Joints[JointType.ShoulderLeft].Position.Z;
+            float handZ = skeleton.Joints[JointType.HandLeft].Position.Z;
+            float angle = (float)Math.Sqrt(shoulderZ * shoulderZ - handZ * handZ);
+            angle *= 100;
+            if (angle > 180f) return 180;
+            System.Diagnostics.Debug.WriteLine(angle);
+            return (int)angle;
+        }
+
         public double LeftJointsAngle(Joint leftRef, Joint rightRef, Joint joint, Skeleton skeleton)
         {
             double leftRefX = (double)(skeleton.Joints[leftRef.JointType].Position.X);
@@ -200,7 +327,7 @@ namespace ArmDuino_Base.Model
             if (angle > 180) angle = 180;
             return angle;
         }
-
+        //NOPE
         public double computeRotation(Skeleton skeleton)
         {
             Vector4 handRotation = skeleton.BoneOrientations[JointType.HandLeft].HierarchicalRotation.Quaternion;
@@ -212,9 +339,10 @@ namespace ArmDuino_Base.Model
             Quaternion totalRotation = Quaternion.Multiply(handQRotation, wristQRotation);
             totalRotation = Quaternion.Multiply(totalRotation, elbowQRotation);
             totalRotation.Normalize();
-            double handAngle = totalRotation.Angle;
-            if(handAngle < 0) return 0;
-            if(handAngle > 180) return 180;
+            double handAngle = handQRotation.Angle;
+            System.Diagnostics.Debug.WriteLine(handAngle);
+            if (handAngle < 0) return 0;
+            if (handAngle > 180) return 180;
             return handAngle;
         }
 

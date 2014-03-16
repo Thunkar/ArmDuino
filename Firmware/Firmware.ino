@@ -47,7 +47,7 @@ void readData()
   {
     byte nbytes = Serial.readBytes(dataBytes,24);
     dataBytesFormatter(dataBytes);
-    #ifdef DEBUG
+    #ifdef DEBUG 
     Serial.print(nbytes);
     Serial.println(" bytes read");
     for(int i = 0; i < 8; i++)
@@ -55,7 +55,7 @@ void readData()
       Serial.println(data[i]);
     }
     #endif
-    Serial.flush();
+    Serial.flush(); // IMPORTANT! Clear the incoming data buffer
   }
 }
 
@@ -78,7 +78,7 @@ void setTargets(int data[]){
   targets[0] = data[1];
   targets[1] = data[2];
   targets[2] = data[3];
-  targets[3] = 180- data[4];
+  targets[3] = 180- data[4]; //Note that this servo is reversed by design
   targets[4] = data[5];
   targets[5] = data[6];
   targets[6] = data[7];
@@ -101,8 +101,9 @@ void setTargets(int data[]){
 
 
 void moveStep(int servo, int target){
-  if(movementStatus[servo] == true) return;
-  if((micros()-lastSteps[servo])>=stepTimer[servo]){
+  if(movementStatus[servo] == true) return; //We are already there? Done!
+  if((micros()-lastSteps[servo])>=stepTimer[servo]) //Has enough time passed already?
+  {
     if(positions[servo]<target){
       positions[servo] += 1;
       servos[servo].write(positions[servo]);
@@ -122,9 +123,11 @@ void moveStep(int servo, int target){
 */
 
 void moveSegments(){
-    for(int i = 0; i < 7; i++){
+    for(int i = 0; i < 6; i++)
+    {
       moveStep(i, targets[i]);
     }
+    servos[6].write(targets[6]);
 } 
 
 /*
@@ -136,14 +139,14 @@ boolean sameTargets(int data[]){
   targets[0] == data[1] &
   targets[1] == data[2] &
   targets[2] == data[3] &
-  targets[3] == 180- data[4] &
+  targets[3] == 180- data[4] & 
   targets[4] == data[5] &
   targets[5] == data[6] &
   targets[6] == data[7];
 }
 
 /*
-/ This method checks if the data we are going to process is the same that we have and in that case ignores it. If it's different, time to move
+/ Checks if the data we are going to process is the same that we have and in that case ignores it. If it's different, time to move
 */
 
 void moveStuff()
@@ -197,7 +200,7 @@ void processData()
 void reset()
 {
     digitalWrite(13, HIGH);
-    for(int i = 0; i < 6; i++)
+    for(int i = 0; i < 6; i++) 
     {
       positions[i] = 90;
       targets[i] = 90;
@@ -217,8 +220,8 @@ void reset()
     horizontal2.write(90);
     delay(500);
     horizontal3.write(90);
-    delay(300);
     // Grip signal to indicate we are ready to receive stuff
+    delay(300);
     grip.write(90);
     delay(200);
     grip.write(170);
@@ -245,6 +248,7 @@ void setup(){
     horizontal2.attach(10);
     delay(500);
     horizontal3.attach(8);
+    // Grip signal to indicate we are ready to receive stuff
     delay(300);
     grip.write(90);
     delay(200);
@@ -255,6 +259,6 @@ void setup(){
 
 void loop() 
 {
-  readData();
+  readData(); 
   processData();
 }

@@ -21,6 +21,8 @@ using System.Speech.Synthesis;
 using Microsoft.Kinect;
 using System.Speech.AudioFormat;
 using System.Threading;
+using Microsoft.Kinect.Toolkit;
+using Microsoft.Kinect.Toolkit.Interaction;
 
 
 namespace ArmDuino_Base
@@ -36,8 +38,7 @@ namespace ArmDuino_Base
         ArmCommander ArmCommander;
         SolidColorBrush activeBrush = new SolidColorBrush(Colors.Green);
         SolidColorBrush inactiveBrush = new SolidColorBrush(Colors.Red);
-
-
+        
 
 
         public MainWindow()
@@ -82,12 +83,14 @@ namespace ArmDuino_Base
                 double horizontal1angle = MainViewModel.Current.KinectHandler.RightJointsAngle(currentSkeleton.Joints[JointType.ShoulderLeft], currentSkeleton.Joints[JointType.ShoulderRight], currentSkeleton.Joints[JointType.ElbowRight], currentSkeleton);
                 double horizontal2angle = MainViewModel.Current.KinectHandler.RightJointsAngle(currentSkeleton.Joints[JointType.ShoulderRight], currentSkeleton.Joints[JointType.ElbowRight], currentSkeleton.Joints[JointType.WristRight], currentSkeleton);
                 double horizontal3angle = MainViewModel.Current.KinectHandler.RightJointsAngle(currentSkeleton.Joints[JointType.ElbowRight], currentSkeleton.Joints[JointType.WristRight], currentSkeleton.Joints[JointType.HandRight], currentSkeleton);
-                double pinzaAngle = MainViewModel.Current.KinectHandler.LeftJointsAngle(currentSkeleton.Joints[JointType.ElbowLeft], currentSkeleton.Joints[JointType.ShoulderLeft], currentSkeleton.Joints[JointType.WristLeft], currentSkeleton);
                 MainViewModel.Current.Arm.Horizontal1Ang = (int)horizontal1angle;
                 MainViewModel.Current.Arm.Horizontal2Ang = (int)horizontal2angle;
                 MainViewModel.Current.Arm.Horizontal3Ang = (int)horizontal3angle;
-                MainViewModel.Current.Arm.Pinza = (int)pinzaAngle;
-                MainViewModel.Current.Arm.BaseAng = (int)MainViewModel.Current.KinectHandler.computeRotation(currentSkeleton);
+                if (MainViewModel.Current.KinectHandler.Grip) MainViewModel.Current.Arm.Pinza = 90;
+                else MainViewModel.Current.Arm.Pinza = 180;
+                MainViewModel.Current.Arm.BaseAng = MainViewModel.Current.KinectHandler.GetVerticalAngle(currentSkeleton);
+                MainViewModel.Current.Arm.Vertical1Ang = MainViewModel.Current.KinectHandler.GetVerticalAngle(currentSkeleton);
+                MainViewModel.Current.Arm.Vertical2Ang = MainViewModel.Current.KinectHandler.GetVerticalAngle(currentSkeleton);
             }
         }
 

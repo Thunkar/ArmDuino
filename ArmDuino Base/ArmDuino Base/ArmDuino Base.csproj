@@ -35,6 +35,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Kinect, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Kinect.Toolkit.Interaction">
+      <HintPath>..\..\..\..\..\..\..\Program Files\Microsoft SDKs\Kinect\Developer Toolkit v1.8.0\Redist\Microsoft.Kinect.Toolkit.Interaction.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Office.Client.Education, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Office.Interop.PowerPoint, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -69,6 +72,7 @@
     <Compile Include="Model\ArmCommander.cs" />
     <Compile Include="Model\COMHandler.cs" />
     <Compile Include="Model\CommandRecognizer.cs" />
+    <Compile Include="Model\DummyInteractionClient.cs" />
     <Compile Include="Model\KinectHandler.cs" />
     <Compile Include="Model\SpokenCommand.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
@@ -113,10 +117,27 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\..\..\..\..\..\..\Program Files\Microsoft SDKs\Kinect\Developer Toolkit v1.8.0\Redist\amd64\KinectInteraction180_64.dll">
+      <Link>KinectInteraction180_64.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\..\..\..\Program Files\Microsoft SDKs\Kinect\Developer Toolkit v1.8.0\Redist\x86\KinectInteraction180_32.dll">
+      <Link>KinectInteraction180_32.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\HappyBirthdayGladOS.wav" />
     <Content Include="Assets\jingle.wav" />
   </ItemGroup>
   <ItemGroup>
+    <COMReference Include="KinectManagement">
+      <Guid>{B167C0CB-E5E7-40FC-BA4E-6711286A2FDE}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
     <COMReference Include="Microsoft.Office.Core">
       <Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>
       <VersionMajor>2</VersionMajor>
