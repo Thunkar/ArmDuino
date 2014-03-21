@@ -51,7 +51,7 @@
             <Button Background="White" x:Name="Connect" BorderBrush="Gray" BorderThickness="3" FontSize="24" Margin="30" Click="Connect_Click">
                 <TextBlock x:Name="ConnectText" Margin="5" FontWeight="SemiBold" TextWrapping="Wrap" TextAlignment="Center"/>
             </Button>
-            <Slider Orientation="Vertical" Value="{Binding KinectHandler.Tilt}" Height="100" Foreground="White"/>
+            <Slider Orientation="Vertical" Value="{Binding KinectHandler.Tilt}" Height="120" Maximum="27" Minimum="-27" Foreground="White"/>
         </StackPanel>
         <ProgressBar Name="KinectBusy" Visibility="{Binding KinectHandler.Busy, Converter={StaticResource BoolToVisibility}}" Height="20" IsIndeterminate="{Binding KinectHandler.Busy}"  Grid.Column="3" Grid.Row="1"/>
         <Image Name="videoImage" Grid.Column="3" Grid.Row="1" Grid.RowSpan="3" Width="Auto" Height="Auto" Source="{Binding KinectHandler.ImageFromKinect, Mode=TwoWay}"/>
