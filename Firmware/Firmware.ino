@@ -13,9 +13,9 @@ Servo vertical1;
 Servo horizontal2;
 Servo vertical2;
 Servo horizontal3;
-Servo grip;
+Servo gripper;
 //Servo array
-Servo servos[] = {base, horizontal1, vertical1, horizontal2, vertical2, horizontal3, grip};
+Servo servos[] = {base, horizontal1, vertical1, horizontal2, vertical2, horizontal3, gripper};
 //Instant positions of the servos
 int positions[] = {90,90,90,90,90,90,170};
 //Target position that servos have to reach
@@ -127,7 +127,7 @@ void moveSegments(){
     {
       moveStep(i, targets[i]);
     }
-    servos[6].write(targets[6]);
+    servos[6].write(targets[6]); // Instantly move gripper
 } 
 
 /*
@@ -169,11 +169,11 @@ void processData()
   {
     case 200: // 200 means the incoming data is movement data
     {
-      if(!iWasConnected) // if we weren't connected, we signal it with the grip
+      if(!iWasConnected) // if we weren't connected, we signal it with the gripper
       {
-        grip.write(90);
+        gripper.write(90);
         delay(200);
-        grip.write(170);
+        gripper.write(170);
       }
        digitalWrite(13, LOW);
        iWasConnected = true;
@@ -207,7 +207,7 @@ void reset()
     }
     positions[6] = 170;
     targets[6] = 170;
-    grip.write(170);
+    gripper.write(170);
     delay(500);
     base.write(90);
     delay(500);
@@ -220,11 +220,11 @@ void reset()
     horizontal2.write(90);
     delay(500);
     horizontal3.write(90);
-    // Grip signal to indicate we are ready to receive stuff
+    // gripper signal to indicate we are ready to receive stuff
     delay(300);
-    grip.write(90);
+    gripper.write(90);
     delay(200);
-    grip.write(170);
+    gripper.write(170);
 }
 
 
@@ -234,8 +234,8 @@ void reset()
 void setup(){
     pinMode(13, OUTPUT);
     digitalWrite(13, HIGH); //LED on means the arm is not connected
-    grip.attach(6);
-    grip.write(170);
+    gripper.attach(6);
+    gripper.write(170);
     delay(500);
     base.attach(7);
     delay(500);
@@ -248,11 +248,11 @@ void setup(){
     horizontal2.attach(10);
     delay(500);
     horizontal3.attach(8);
-    // Grip signal to indicate we are ready to receive stuff
+    // gripper signal to indicate we are ready to receive stuff
     delay(300);
-    grip.write(90);
+    gripper.write(90);
     delay(200);
-    grip.write(170);
+    gripper.write(170);
     Serial.begin(115200);
 }
 
