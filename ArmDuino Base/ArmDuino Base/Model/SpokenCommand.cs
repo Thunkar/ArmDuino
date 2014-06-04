@@ -22,6 +22,7 @@ namespace ArmDuino_Base.Model
             this.response = response;
             this.soundname = soundname;  
         }
+
         public SpokenCommand(String response)
         {
             this.response = response;

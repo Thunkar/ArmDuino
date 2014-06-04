@@ -17,7 +17,7 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="140"/>
+            <RowDefinition Height="130"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="60"/>
@@ -40,23 +40,35 @@
             <Slider x:Name="Pinza2Slider" Maximum="180" Value="{Binding Arm.Pinza, Mode=TwoWay}"  Height="300" Orientation="Vertical" Margin="20"/>
         </StackPanel>
         <TextBlock Text="Third Segment" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Margin="10" FontSize="30" Foreground="White" Grid.Column="2" />
-        <TextBlock Text="ArmDuino Base" Grid.ColumnSpan="3" FontSize="72" Margin="30" Foreground="White"/>
-        <StackPanel Grid.Column="3" ClipToBounds="False" Orientation="Horizontal">
-            <Button Background="White" BorderBrush="Gray" BorderThickness="3" x:Name="StartKinectButton" FontSize="24" Margin="30" Click="StartKinectButton_Click">
-                <TextBlock Margin="5" Text="Start Kinect" FontWeight="SemiBold" TextWrapping="Wrap"/>
+        <TextBlock Text="ArmDuino Base" Grid.ColumnSpan="3" FontSize="58" Margin="30" Foreground="White"/>
+        <StackPanel Grid.Column="3" Orientation="Horizontal">
+            <Button Background="White" MaxWidth="100" BorderBrush="Gray" BorderThickness="3" x:Name="StartKinectButton" FontSize="22" Margin="10, 25" Click="StartKinectButton_Click">
+                <TextBlock Margin="5" Text="Start Kinect" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
             </Button>
-            <Button x:Name="StartSpeechRecog" BorderBrush="Gray" BorderThickness="3" Background="White" FontSize="24" Margin="30" Click="StartSpeechRecog_Click">
+            <Button x:Name="StartSpeechRecog" MaxWidth="150" BorderBrush="Gray" BorderThickness="3" Background="White" FontSize="22" Margin="10, 25" Click="StartSpeechRecog_Click">
                 <TextBlock Margin="5" FontWeight="SemiBold" Text="Voice Recognition" TextWrapping="Wrap" TextAlignment="Center"/>
             </Button>
-            <Button Background="White" x:Name="Connect" BorderBrush="Gray" BorderThickness="3" FontSize="24" Margin="30" Click="Connect_Click">
+            <Button x:Name="StartGestureRecog" MaxWidth="150" BorderBrush="Gray" BorderThickness="3" Background="White" FontSize="22" Margin="10, 25" Click="StartGestureRecog_Click">
+                <TextBlock Margin="5" FontWeight="SemiBold" Text="Gesture Recognition" TextWrapping="Wrap" TextAlignment="Center"/>
+            </Button>
+            <Button Background="White" MaxWidth="150" x:Name="Connect" BorderBrush="Gray" BorderThickness="3" FontSize="22" Margin="10, 25" Click="Connect_Click">
                 <TextBlock x:Name="ConnectText" Margin="5" FontWeight="SemiBold" TextWrapping="Wrap" TextAlignment="Center"/>
             </Button>
-            <Slider Orientation="Vertical" Value="{Binding KinectHandler.Tilt}" Height="120" Maximum="27" Minimum="-27" Foreground="White"/>
+            <ListView x:Name="COM" Margin="10,25"/>
         </StackPanel>
+        <Slider Orientation="Vertical" Value="{Binding KinectHandler.Tilt}" Grid.Row="2" Grid.Column="3" HorizontalAlignment="Right" Maximum="27" Minimum="-27" Foreground="White" Width="20" Margin="0,0,-25,0" />
         <ProgressBar Name="KinectBusy" Visibility="{Binding KinectHandler.Busy, Converter={StaticResource BoolToVisibility}}" Height="20" IsIndeterminate="{Binding KinectHandler.Busy}"  Grid.Column="3" Grid.Row="1"/>
         <Image Name="videoImage" Grid.Column="3" Grid.Row="1" Grid.RowSpan="3" Width="Auto" Height="Auto" Source="{Binding KinectHandler.ImageFromKinect, Mode=TwoWay}"/>
+        <StackPanel Orientation="Horizontal" Grid.Column="3" Grid.Row="4">
+            <ListBox x:Name="CommandPicker" Width="300" BorderBrush="Gray" BorderThickness="3" FontSize="20" Margin="10, 25"/>
+            <Button Background="White" MaxWidth="150" x:Name="RefreshCommands" BorderBrush="Gray" BorderThickness="3" FontSize="22" Margin="10, 25" Click="RefreshCommands_Click">
+                <TextBlock x:Name="RefreshCom" Margin="5" Text="Refresh" FontWeight="SemiBold" TextWrapping="Wrap" TextAlignment="Center"/>
+            </Button>
+            <Button Background="White" MaxWidth="150" x:Name="ExecuteCommands" BorderBrush="Gray" BorderThickness="3" FontSize="22" Margin="10, 25" Click="ExecuteCommands_Click">
+                <TextBlock x:Name="ExecuteCom" Margin="5" Text="Execute" FontWeight="SemiBold" TextWrapping="Wrap" TextAlignment="Center"/>
+            </Button>
+        </StackPanel>
         <Canvas  Width="640" Height="480" Grid.Column="3" Grid.Row="1" Grid.RowSpan="3" Background="Transparent">
-           
             <Ellipse Fill="Red"
                          Height="10"
                          Width="10"

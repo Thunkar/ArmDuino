@@ -19,6 +19,11 @@ namespace ArmDuino_Base.Model
             Commands = new Dictionary<String, SpokenCommand>();
         }
 
+        public void reset()
+        {
+            Commands.Clear();
+        }
+
 
         public void loadCommand(String command, SpokenCommand armcommand)
         {

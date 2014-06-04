@@ -38,7 +38,7 @@ namespace ArmDuino_Base
         ArmCommander ArmCommander;
         SolidColorBrush activeBrush = new SolidColorBrush(Colors.Green);
         SolidColorBrush inactiveBrush = new SolidColorBrush(Colors.Red);
-        
+
 
 
         public MainWindow()
@@ -49,6 +49,10 @@ namespace ArmDuino_Base
             this.Closed += MainWindow_Closed;
             synth.SetOutputToDefaultAudioDevice();
             ConnectText.Text = "Connect";
+            ArmCommander = new ArmCommander(MainViewModel.Current.Arm);
+            ArmCommander.loadFromFile(recognizer);
+            CommandPicker.ItemsSource = recognizer.Commands.Keys;
+            COM.ItemsSource = MainViewModel.Current.COMHandler.COMPorts;
             CompositionTarget.Rendering += CompositionTarget_Rendering;
         }
 
@@ -74,26 +78,6 @@ namespace ArmDuino_Base
 
         }
 
-        public void KinectMapper()
-        {
-            Skeleton currentSkeleton = MainViewModel.Current.KinectHandler.closestSkeleton;
-            if (MainViewModel.Current.KinectHandler.Sensor != null && MainViewModel.Current.KinectHandler.Sensor.SkeletonStream.IsEnabled
-    && currentSkeleton != null)
-            {
-                double horizontal1angle = MainViewModel.Current.KinectHandler.RightJointsAngle(currentSkeleton.Joints[JointType.ShoulderLeft], currentSkeleton.Joints[JointType.ShoulderRight], currentSkeleton.Joints[JointType.ElbowRight], currentSkeleton);
-                double horizontal2angle = MainViewModel.Current.KinectHandler.RightJointsAngle(currentSkeleton.Joints[JointType.ShoulderRight], currentSkeleton.Joints[JointType.ElbowRight], currentSkeleton.Joints[JointType.WristRight], currentSkeleton);
-                double horizontal3angle = MainViewModel.Current.KinectHandler.RightJointsAngle(currentSkeleton.Joints[JointType.ElbowRight], currentSkeleton.Joints[JointType.WristRight], currentSkeleton.Joints[JointType.HandRight], currentSkeleton);
-                MainViewModel.Current.Arm.Horizontal1Ang = (int)horizontal1angle;
-                MainViewModel.Current.Arm.Horizontal2Ang = (int)horizontal2angle;
-                MainViewModel.Current.Arm.Horizontal3Ang = (int)horizontal3angle;
-                if (MainViewModel.Current.KinectHandler.Grip) MainViewModel.Current.Arm.Pinza = 90;
-                else MainViewModel.Current.Arm.Pinza = 180;
-                MainViewModel.Current.Arm.BaseAng = MainViewModel.Current.KinectHandler.GetVerticalAngle(currentSkeleton);
-                MainViewModel.Current.Arm.Vertical1Ang = MainViewModel.Current.KinectHandler.GetVerticalAngle(currentSkeleton);
-                MainViewModel.Current.Arm.Vertical2Ang = MainViewModel.Current.KinectHandler.GetVerticalAngle(currentSkeleton);
-            }
-        }
-
 
         private void InitializeSpeechRecognition()
         {
@@ -104,14 +88,12 @@ namespace ArmDuino_Base
             deactivate.Name = "deactivate";
             recognizer.LoadGrammar(activate);
             recognizer.LoadGrammar(deactivate);
-            //Robotic arm commands
-            recognizer.loadCommand("Ok llarvis, saluda", MainViewModel.Current.Salute);
-            recognizer.loadCommand("Ok llarvis, recoge", MainViewModel.Current.Picker);
-            recognizer.loadCommand("Ok llarvis, ponte recto", MainViewModel.Current.Rect);
-            recognizer.loadCommand("Ok robot, hazme una paja", MainViewModel.Current.Paja);
-            recognizer.loadCommand("Ok llarvis, felicita las navidades", MainViewModel.Current.Navidades);
-            recognizer.loadCommand("Ok llarvis, para la música", MainViewModel.Current.ParalaMusica);
-            recognizer.loadCommand("Ok llarvis, felicítame por mi cumpleaños", MainViewModel.Current.Cumpleaños);
+            Grammar activateGesture = new Grammar(new GrammarBuilder("Ok llarvis, activa el control gestual"));
+            activate.Name = "activateGesture";
+            Grammar deactivateGesture = new Grammar(new GrammarBuilder("Ok llarvis, desactiva el control gestual"));
+            deactivate.Name = "deactivateGesture";
+            recognizer.LoadGrammar(activateGesture);
+            recognizer.LoadGrammar(deactivateGesture);
             recognizer.RequestRecognizerUpdate();
             recognizer.SpeechRecognized += _recognizer_SpeechRecognized;
         }
@@ -169,18 +151,28 @@ namespace ArmDuino_Base
             {
                 synth.SpeakAsync("Control por voz activado");
                 voiceControlActivated = true;
-                ArmCommander = new ArmCommander(MainViewModel.Current.Arm);
+                recognizer.reset();
+                ArmCommander.loadFromFile(recognizer);
             }
             if (e.Result.Text == "Ok llarvis, desactiva el control por voz" && e.Result.Confidence >= 0.5)
             {
                 synth.SpeakAsync("Control por voz desactivado");
                 voiceControlActivated = false;
-                ArmCommander = null;
             }
-            if (voiceControlActivated == true && e.Result.Confidence >= 0.6) voiceControlHandler(e.Result.Text);
+            if (e.Result.Text == "Ok llarvis, activa el control gestual" && e.Result.Confidence >= 0.5)
+            {
+                synth.SpeakAsync("Control gestual activado");
+                MainViewModel.Current.KinectHandler.Tracking = true;
+            }
+            if (e.Result.Text == "Ok llarvis, desactiva el control gestual" && e.Result.Confidence >= 0.5)
+            {
+                synth.SpeakAsync("Control gestual desactivado");
+                MainViewModel.Current.KinectHandler.Tracking = false;
+            }
+            if (voiceControlActivated == true && e.Result.Confidence >= 0.6) executeBatchCommand(e.Result.Text);
         }
 
-        public void voiceControlHandler(String command)
+        public void executeBatchCommand(String command)
         {
             SpokenCommand result;
             String response;
@@ -194,9 +186,9 @@ namespace ArmDuino_Base
 
         void Timer_Tick(object sender, EventArgs e)
         {
-            KinectMapper();
+            MainViewModel.Current.KinectMapper();
             MainViewModel.Current.Arm.updateAngles();
-            MainViewModel.Current.COMHandler.writeDataBytes(MainViewModel.Current.Arm);
+            if (!MainViewModel.Current.COMHandler.writeDataBytes(MainViewModel.Current.Arm)) tryDisconnection();
         }
 
 
@@ -204,7 +196,6 @@ namespace ArmDuino_Base
         {
             String data = COMHandler.Port.ReadExisting();
             System.Diagnostics.Debug.WriteLine(data);
-            //if (data.Equals("Connected")) Connect.Content = "Connected!";
         }
 
         //This method is used to position the ellipses on the canvas
@@ -230,31 +221,50 @@ namespace ArmDuino_Base
             Canvas.SetTop(ellipse, point.Y - ellipse.ActualHeight / 2);
         }
 
-
-        private void Connect_Click(object sender, RoutedEventArgs e)
+        private void tryConnection()
         {
 
-            if (!MainViewModel.Current.COMHandler.isConnected)
+            MainViewModel.Current.Arm.CurrentAngles = new int[] { 90, 90, 90, 90, 90, 90, 170 };
+            MainViewModel.Current.Arm.setAngles();
+            try
             {
-                MainViewModel.Current.Arm.CurrentAngles = new int[] { 90, 90, 90, 90, 90, 90, 170 };
-                MainViewModel.Current.Arm.setAngles();
+                MainViewModel.Current.COMHandler.SelectedPort = COM.SelectedItem.ToString();
                 MainViewModel.Current.COMHandler.Initialize();
                 COMHandler.Port.DataReceived += Port_DataReceived;
                 Timer.Start();
                 ConnectText.Text = "Disconnect";
             }
-            else
+            catch (Exception)
             {
-                Timer.Stop();
-                MainViewModel.Current.COMHandler.isConnected = false;
-                MainViewModel.Current.Arm.CurrentAngles = new int[] {90,90,90,90,90,90,170};
-                MainViewModel.Current.Arm.setAngles();
+
+            }
+        }
+
+        private void tryDisconnection()
+        {
+            Timer.Stop();
+            try
+            {
                 byte[] stop = { 2, 0, 1, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0, 9, 0, 1, 7, 0 };
                 COMHandler.Port.Write(stop, 0, 24);
                 COMHandler.Port.Close();
-                ConnectText.Text = "Connect";
             }
+            catch (Exception)
+            {
 
+            }
+            ConnectText.Text = "Connect";
+            MainViewModel.Current.COMHandler.isConnected = false;
+            MainViewModel.Current.Arm.CurrentAngles = new int[] { 90, 90, 90, 90, 90, 90, 170 };
+            MainViewModel.Current.Arm.setAngles();
+
+        }
+
+
+        private void Connect_Click(object sender, RoutedEventArgs e)
+        {
+            if (!MainViewModel.Current.COMHandler.isConnected) tryConnection();
+            else tryDisconnection();
         }
 
         private void StartKinectButton_Click(object sender, RoutedEventArgs e)
@@ -266,6 +276,30 @@ namespace ArmDuino_Base
         private void StartSpeechRecog_Click(object sender, RoutedEventArgs e)
         {
             this.StartSpeechRecognition();
+        }
+
+        private void toogleGestureRecognition()
+        {
+            MainViewModel.Current.KinectHandler.Tracking = !MainViewModel.Current.KinectHandler.Tracking;
+        }
+
+        private void StartGestureRecog_Click(object sender, RoutedEventArgs e)
+        {
+            toogleGestureRecognition();
+        }
+
+        private void RefreshCommands_Click(object sender, RoutedEventArgs e)
+        {
+            CommandPicker.ItemsSource = null;
+            recognizer.reset();
+            ArmCommander.loadFromFile(recognizer);
+            CommandPicker.ItemsSource = recognizer.Commands.Keys;
+        }
+
+        private void ExecuteCommands_Click(object sender, RoutedEventArgs e)
+        {
+            if (CommandPicker.SelectedItem != null)
+                executeBatchCommand(CommandPicker.SelectedItem.ToString());
         }
     }
 }

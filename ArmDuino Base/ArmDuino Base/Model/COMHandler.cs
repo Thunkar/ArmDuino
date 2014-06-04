@@ -5,31 +5,57 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO.Ports;
 using System.Windows;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace ArmDuino_Base.Model
 {
-    class COMHandler
+    class COMHandler : INotifyPropertyChanged
     {
         public static SerialPort Port;
         public bool isConnected = false;
+        public ObservableCollection<string> COMPorts;
+        private string selectedPort;
+        public string SelectedPort
+        {
+            get
+            {
+                return selectedPort;
+            }
+            set
+            {
+                selectedPort = value;
+                NotifyPropertyChanged("SelectedPort");
+            }
+        }
 
 
         public COMHandler()
         {
+            COMPorts = new ObservableCollection<string>();
+            refresh();
+        }
 
+        public void refresh()
+        {
+            COMPorts.Clear();
+            string[] portnames = SerialPort.GetPortNames();
+            foreach (string name in portnames)
+            {
+                COMPorts.Add(name);
+            }
         }
 
         public void Initialize()
         {
-            string[] portnames = SerialPort.GetPortNames();
 
-            if(portnames.Length == 0)
+            if(COMPorts.Count == 0)
             {
                 MessageBoxResult error = MessageBox.Show("No COM Port found", "Le Fail", MessageBoxButton.OK, MessageBoxImage.Error);
                 this.isConnected = false;
                 if (error == MessageBoxResult.OK) return;
             }
-            Port = new SerialPort(portnames[0], 115200);
+            Port = new SerialPort(selectedPort, 115200);
             while (!Port.IsOpen)
             {
                 try
@@ -78,22 +104,26 @@ namespace ArmDuino_Base.Model
             return buffer;
         }
 
-        public void writeDataBytes(Arm currentArm)
+        public bool writeDataBytes(Arm currentArm)
         {
             try
             {
                 byte[] buffer = dataToBytes(currentArm);
-                //for (int i = 0; i < buffer.Length; i++)
-                //{
-                //    System.Diagnostics.Debug.Write(buffer[i]);
-                //}
-                //System.Diagnostics.Debug.WriteLine("");
-                    Port.Write(buffer, 0, buffer.Length);
+                Port.Write(buffer, 0, buffer.Length);
+                return true;
             }
             catch(Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+                isConnected = false;
+                return false;
             }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(string property)
+        {
+            if (PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs(property));
         }
     }
 }

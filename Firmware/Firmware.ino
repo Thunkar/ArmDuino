@@ -15,7 +15,7 @@ Servo vertical2;
 Servo horizontal3;
 Servo gripper;
 //Servo array
-Servo servos[] = {base, horizontal1, vertical1, horizontal2, vertical2, horizontal3, gripper};
+Servo servos[] = {base, horizontal1, vertical1, horizontal2, vertical2, horizontal3, gripper  };
 //Instant positions of the servos
 int positions[] = {90,90,90,90,90,90,170};
 //Target position that servos have to reach
