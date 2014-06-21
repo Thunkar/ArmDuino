@@ -23,6 +23,7 @@ using System.Speech.AudioFormat;
 using System.Threading;
 using Microsoft.Kinect.Toolkit;
 using Microsoft.Kinect.Toolkit.Interaction;
+using System.Globalization;
 
 
 namespace ArmDuino_Base
@@ -48,6 +49,7 @@ namespace ArmDuino_Base
             Timer.Tick += Timer_Tick;
             this.Closed += MainWindow_Closed;
             synth.SetOutputToDefaultAudioDevice();
+            synth.SelectVoiceByHints(VoiceGender.Male, VoiceAge.Adult, 1, CultureInfo.CurrentCulture);
             ConnectText.Text = "Connect";
             ArmCommander = new ArmCommander(MainViewModel.Current.Arm);
             ArmCommander.loadFromFile(recognizer);
