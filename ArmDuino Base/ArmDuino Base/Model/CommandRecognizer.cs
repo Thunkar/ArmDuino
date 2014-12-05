@@ -14,8 +14,9 @@ namespace ArmDuino_Base.Model
  
 
 
-        public CommandRecognizer()
+        public CommandRecognizer() : base(new System.Globalization.CultureInfo("en-US"))
         {
+            
             Commands = new Dictionary<String, SpokenCommand>();
         }
 
@@ -28,7 +29,9 @@ namespace ArmDuino_Base.Model
         public void loadCommand(String command, SpokenCommand armcommand)
         {
             this.Commands.Add(command, armcommand);
-            Grammar spokenCommandGr = new Grammar(new GrammarBuilder(command));
+            GrammarBuilder grBuilder = new GrammarBuilder(command);
+            grBuilder.Culture =  new System.Globalization.CultureInfo("en-US");
+            Grammar spokenCommandGr = new Grammar(grBuilder);
             spokenCommandGr.Name = command;
             this.LoadGrammar(spokenCommandGr);
         }

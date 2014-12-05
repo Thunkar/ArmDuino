@@ -23,6 +23,7 @@ using System.Speech.AudioFormat;
 using System.Threading;
 using Microsoft.Kinect.Toolkit;
 using Microsoft.Kinect.Toolkit.Interaction;
+using System.Globalization;
 
 
 namespace ArmDuino_Base
@@ -48,6 +49,7 @@ namespace ArmDuino_Base
             Timer.Tick += Timer_Tick;
             this.Closed += MainWindow_Closed;
             synth.SetOutputToDefaultAudioDevice();
+            synth.SelectVoice("Microsoft Zira Desktop");
             ConnectText.Text = "Connect";
             ArmCommander = new ArmCommander(MainViewModel.Current.Arm);
             ArmCommander.loadFromFile(recognizer);
@@ -82,16 +84,29 @@ namespace ArmDuino_Base
         private void InitializeSpeechRecognition()
         {
             //Activation commands
-            Grammar activate = new Grammar(new GrammarBuilder("Ok llarvis, activa el control por voz"));
+            GrammarBuilder activateBuilder = new GrammarBuilder("Ok robot, activate voice control");
+            activateBuilder.Culture = new System.Globalization.CultureInfo("en-US");
+            Grammar activate = new Grammar(activateBuilder);
             activate.Name = "activate";
-            Grammar deactivate = new Grammar(new GrammarBuilder("Ok llarvis, desactiva el control por voz"));
+
+            GrammarBuilder deactivateBuilder = new GrammarBuilder("Ok robot, deactivate voice control");
+            deactivateBuilder.Culture = new System.Globalization.CultureInfo("en-US");
+            Grammar deactivate = new Grammar(deactivateBuilder);
             deactivate.Name = "deactivate";
+
             recognizer.LoadGrammar(activate);
             recognizer.LoadGrammar(deactivate);
-            Grammar activateGesture = new Grammar(new GrammarBuilder("Ok llarvis, activa el control gestual"));
+
+            GrammarBuilder gestureBuilder = new GrammarBuilder("Ok robot, activate gesture control");
+            gestureBuilder.Culture = new System.Globalization.CultureInfo("en-US");
+            Grammar activateGesture = new Grammar(gestureBuilder);
             activate.Name = "activateGesture";
-            Grammar deactivateGesture = new Grammar(new GrammarBuilder("Ok llarvis, desactiva el control gestual"));
+
+            GrammarBuilder deGestureBuilder = new GrammarBuilder("Ok robot, deactivate gesture control");
+            deGestureBuilder.Culture = new System.Globalization.CultureInfo("en-US");
+            Grammar deactivateGesture = new Grammar(deGestureBuilder);
             deactivate.Name = "deactivateGesture";
+
             recognizer.LoadGrammar(activateGesture);
             recognizer.LoadGrammar(deactivateGesture);
             recognizer.RequestRecognizerUpdate();
@@ -147,29 +162,29 @@ namespace ArmDuino_Base
 
         void _recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
-            if (e.Result.Text == "Ok llarvis, activa el control por voz" && e.Result.Confidence >= 0.5)
+            if (e.Result.Text == "Ok robot, activate voice control" && e.Result.Confidence >= 0.5)
             {
-                synth.SpeakAsync("Control por voz activado");
+                synth.SpeakAsync("Voice control activated");
                 voiceControlActivated = true;
                 recognizer.reset();
                 ArmCommander.loadFromFile(recognizer);
             }
-            if (e.Result.Text == "Ok llarvis, desactiva el control por voz" && e.Result.Confidence >= 0.5)
+            if (e.Result.Text == "Ok robot, deactivate voice control" && e.Result.Confidence >= 0.5)
             {
-                synth.SpeakAsync("Control por voz desactivado");
+                synth.SpeakAsync("Voice control deactivated");
                 voiceControlActivated = false;
             }
-            if (e.Result.Text == "Ok llarvis, activa el control gestual" && e.Result.Confidence >= 0.5)
+            if (e.Result.Text == "Ok robot, activate gesture control" && e.Result.Confidence >= 0.5)
             {
-                synth.SpeakAsync("Control gestual activado");
+                synth.SpeakAsync("Gesture control activated");
                 MainViewModel.Current.KinectHandler.Tracking = true;
             }
-            if (e.Result.Text == "Ok llarvis, desactiva el control gestual" && e.Result.Confidence >= 0.5)
+            if (e.Result.Text == "Ok robot, deactivate gesture control" && e.Result.Confidence >= 0.5)
             {
-                synth.SpeakAsync("Control gestual desactivado");
+                synth.SpeakAsync("Gesture control deactivated");
                 MainViewModel.Current.KinectHandler.Tracking = false;
             }
-            if (voiceControlActivated == true && e.Result.Confidence >= 0.6) executeBatchCommand(e.Result.Text);
+            if (voiceControlActivated == true && e.Result.Confidence >= 0.5) executeBatchCommand(e.Result.Text);
         }
 
         public void executeBatchCommand(String command)
